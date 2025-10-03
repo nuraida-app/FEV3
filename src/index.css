@@ -1,0 +1,76 @@
+* {
+  padding: 0;
+  margin: 0;
+  scroll-behavior: smooth;
+  scrollbar-width: thin; /* Mengubah lebar scrollbar */
+  scrollbar-color: #888 #f1f1f1; /* thumb color track color */
+}
+
+/* Buttons */
+.btn-download {
+  background-color: #52c41a;
+  border-color: #52c41a;
+  color: #fff;
+}
+.btn-download:hover {
+  background-color: #389e0d; /* lebih gelap */
+  border-color: #389e0d !important ;
+  color: #fff !important;
+}
+
+.btn-reset {
+  background-color: #faad14;
+  border-color: #faad14;
+  color: #fff;
+}
+.btn-reset:hover {
+  background-color: #d48806; /* lebih gelap */
+  border-color: #d48806 !important;
+  color: #fff !important;
+}
+
+.btn-allow {
+  background-color: #389e0d;
+  border-color: #389e0d;
+  color: #fff;
+}
+.btn-allow:hover {
+  background-color: #237804 !important; /* lebih pekat */
+  border-color: #237804 !important;
+  color: #fff !important;
+}
+
+/* React Quill */
+.react-quill {
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.react-quill .ql-container {
+  flex: 1 !important;
+  overflow-y: auto !important;
+}
+
+.ql-container {
+  border: none !important;
+}
+
+.ql-toolbar {
+  border: none !important;
+}
+
+.ql-editor {
+  border: none !important;
+  z-index: 200 !important;
+}
+
+.ql-toolbar .ql-audio::before {
+  content: "🎵";
+  font-size: 12px;
+}
+
+.border {
+  border: #e6e9ec 1px solid;
+  border-radius: 5px;
+}
