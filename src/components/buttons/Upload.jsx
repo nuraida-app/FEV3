@@ -4,12 +4,7 @@ import React from "react";
 
 const Upload = ({ onClick }) => {
   return (
-    <Button
-      color="primary"
-      variant="dashed"
-      icon={<CloudUploadOutlined />}
-      onClick={onClick}
-    >
+    <Button icon={<CloudUploadOutlined />} onClick={onClick}>
       Unggah
     </Button>
   );

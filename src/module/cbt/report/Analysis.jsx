@@ -65,7 +65,7 @@ const Analysis = ({ examid, classid, tableRef }) => {
         width: 75,
         align: "center",
         render: (answers) => {
-          const studentAnswerObj = answers.find(
+          const studentAnswerObj = answers?.find(
             (ans) => ans.id === question.id
           );
           const studentAnswer = studentAnswerObj
@@ -74,7 +74,7 @@ const Analysis = ({ examid, classid, tableRef }) => {
           const isCorrect = studentAnswer === question.qkey.toUpperCase();
 
           if (!studentAnswerObj) {
-            return <Typography.Text type="secondary">-</Typography.Text>;
+            return <Typography.Text type='secondary'>-</Typography.Text>;
           }
 
           return (
@@ -146,7 +146,7 @@ const Analysis = ({ examid, classid, tableRef }) => {
       isLoading={isLoading}
       columns={columns}
       source={data?.students}
-      rowKey="id"
+      rowKey='id'
       page={page}
       limit={limit}
       totalData={data?.totalData}

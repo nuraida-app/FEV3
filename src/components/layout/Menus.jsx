@@ -2,6 +2,7 @@ import {
   ApartmentOutlined,
   AuditOutlined,
   BranchesOutlined,
+  DatabaseOutlined,
   DesktopOutlined,
   DotChartOutlined,
   FolderOutlined,
@@ -49,7 +50,11 @@ export const AdminMenus = [
     key: "/admin-data-siswa",
     icon: <ApartmentOutlined />,
   },
-
+  {
+    label: "Database",
+    key: "/database",
+    icon: <DatabaseOutlined />,
+  },
   {
     label: "CBT",
     key: "/computer-based-test",
@@ -75,6 +80,41 @@ export const TeacherMenus = [
     label: "CBT",
     key: "/computer-based-test",
     icon: <DesktopOutlined />,
+  },
+  {
+    label: "Database",
+    key: "/database",
+    icon: <DatabaseOutlined />,
+  },
+  { label: "Profile", key: "/profile", icon: <UserOutlined /> },
+  { label: "Logout", key: "logout", icon: <LogoutOutlined />, danger: true },
+];
+
+export const StudentMenus = [
+  {
+    label: "Dashboard",
+    key: "/siswa-dashboard",
+    icon: <WindowsOutlined />,
+  },
+  { label: "Profile", key: "/profile", icon: <UserOutlined /> },
+  { label: "Logout", key: "logout", icon: <LogoutOutlined />, danger: true },
+];
+
+export const ParentMenus = [
+  {
+    label: "Dashboard",
+    key: "/orangtua-dashboard",
+    icon: <WindowsOutlined />,
+  },
+  { label: "Profile", key: "/profile", icon: <UserOutlined /> },
+  { label: "Logout", key: "logout", icon: <LogoutOutlined />, danger: true },
+];
+
+export const TahfizMenus = [
+  {
+    label: "Dashboard",
+    key: "/tahfiz-dashboard",
+    icon: <WindowsOutlined />,
   },
   { label: "Profile", key: "/profile", icon: <UserOutlined /> },
   { label: "Logout", key: "logout", icon: <LogoutOutlined />, danger: true },

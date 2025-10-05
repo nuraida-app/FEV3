@@ -124,41 +124,45 @@ const FormBank = ({ open, onClose, title, bank }) => {
       title={title}
       open={open}
       onCancel={onClose}
-      cancelText="Tutup"
-      okText="Simpan"
+      cancelText='Tutup'
+      okText='Simpan'
       onOk={() => form.submit()}
       confirmLoading={addLoading} // Menampilkan loading pada tombol OK
       forceRender
     >
-      <Spin tip="Memproses data..." spinning={addLoading}>
+      <Spin tip='Memproses data...' spinning={addLoading}>
         <Form
           form={form}
-          layout="vertical"
+          layout='vertical'
           onFinish={onFinish}
           // KUNCI 1: 'initialValues' mengatur nilai default saat form dimuat/reset.
           initialValues={{ btype: "paket" }}
         >
           {/* ... Form.Item untuk teacher dan subject ... */}
           <Form.Item
-            name="teacher"
-            label="Pilih Guru"
+            name='teacher'
+            label='Pilih Guru'
             rules={[{ required: true, message: "Pilih guru terlebih dahulu" }]}
           >
             <Select
-              placeholder="Ketik untuk mencari guru..."
+              placeholder='Ketik untuk mencari guru...'
               allowClear
               showSearch
               onSearch={handleSearchTeacher}
               options={teacherOpts}
               onChange={handleTeacherChange}
               loading={isLoadingTeachers}
-              filterOption={false}
               disabled={user?.level === "teacher"}
+              filterOption={(input, option) =>
+                option.label.toLowerCase().includes(input.toLowerCase())
+              }
+              getPopupContainer={(triggerNode) => triggerNode.parentNode}
+              virtual={false}
             />
           </Form.Item>
           <Form.Item
-            name="subject"
-            label="Pilih Mata Pelajaran"
+            name='subject'
+            label='Pilih Mata Pelajaran'
             rules={[
               {
                 required: true,
@@ -167,15 +171,21 @@ const FormBank = ({ open, onClose, title, bank }) => {
             ]}
           >
             <Select
-              placeholder="Pilih mata pelajaran"
+              placeholder='Pilih mata pelajaran'
               allowClear
               options={subjectOptions}
               disabled={subjectOptions.length === 0 && !bank}
+              showSearch
+              filterOption={(input, option) =>
+                option.label.toLowerCase().includes(input.toLowerCase())
+              }
+              getPopupContainer={(triggerNode) => triggerNode.parentNode}
+              virtual={false}
             />
           </Form.Item>
-          <Form.Item name="btype" label="Tipe Bank Soal">
+          <Form.Item name='btype' label='Tipe Bank Soal'>
             <Select
-              placeholder="Pilih tipe bank soal"
+              placeholder='Pilih tipe bank soal'
               options={[{ label: "Paket", value: "paket" }]}
               // KUNCI 2: 'disabled' mencegah pengguna mengubah nilai yang sudah di-set.
               disabled
@@ -183,11 +193,11 @@ const FormBank = ({ open, onClose, title, bank }) => {
           </Form.Item>
 
           <Form.Item
-            name="name"
-            label="Nama Bank Soal"
+            name='name'
+            label='Nama Bank Soal'
             rules={[{ required: true, message: "Nama bank soal wajib diisi" }]}
           >
-            <Input placeholder="maks 30 karakter" maxLength={30} />
+            <Input placeholder='maks 30 karakter' maxLength={30} />
           </Form.Item>
         </Form>
       </Spin>

@@ -54,19 +54,20 @@ const FormBranch = ({ open, onClose, branch, title }) => {
       title={title}
       open={open}
       onCancel={handleClose}
-      footer={[
-        <Cancel key={"cancel"} onClick={handleClose} />,
-        <Save key={"save"} onClick={() => form.submit()} />,
-      ]}
+      okText='Simpan'
+      cancelText='Tutup'
+      confirmLoading={isLoading}
+      loading={isLoading}
+      onOk={() => form.submit()}
     >
-      <Spin spinning={isLoading} tip="Memperoses data..">
-        <Form form={form} layout="vertical" onFinish={handleSubmit}>
+      <Spin spinning={isLoading} tip='Memperoses data..'>
+        <Form form={form} layout='vertical' onFinish={handleSubmit}>
           <Form.Item
-            name="name"
-            label="Nama Kategori"
+            name='name'
+            label='Nama Kategori'
             rules={[{ required: true, message: "Nama Wajib diisi" }]}
           >
-            <Input placeholder="Nama Kategori" />
+            <Input placeholder='Nama Kategori' />
           </Form.Item>
         </Form>
       </Spin>

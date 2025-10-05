@@ -14,6 +14,8 @@ import {
   Col,
   message,
   Pagination,
+  Empty,
+  Spin,
 } from "antd";
 import {
   ArrowLeftOutlined,
@@ -28,6 +30,8 @@ import {
   useDeleteQuestionMutation,
   useGetQuestionsQuery,
 } from "../../../service/api/cbt/ApiBank";
+import Upload from "../../../components/buttons/Upload";
+import FormUpload from "./FormUpload";
 
 const createMarkup = (html) => {
   return { __html: html || "" };
@@ -46,6 +50,7 @@ const Questions = ({ subject, bankid, name }) => {
   const [search, setSearch] = useState("");
 
   const [open, setOpen] = useState(false);
+  const [openUpload, setOpenUpload] = useState(false);
   const [editingQuestion, setEditingQuestion] = useState(null);
 
   const { data, isLoading, error } = useGetQuestionsQuery({
@@ -88,9 +93,9 @@ const Questions = ({ subject, bankid, name }) => {
     if (error) {
       return (
         <Alert
-          type="warning"
+          type='warning'
           showIcon
-          message="Soal Belum Tersedia"
+          message='Soal Belum Tersedia'
           description={
             error
               ? error.data?.message || "Gagal memuat soal."
@@ -140,11 +145,11 @@ const Questions = ({ subject, bankid, name }) => {
                 Ubah
               </Button>
               <Popconfirm
-                title="Hapus Soal"
-                description="Apakah Anda yakin ingin menghapus soal ini?"
+                title='Hapus Soal'
+                description='Apakah Anda yakin ingin menghapus soal ini?'
                 onConfirm={() => deleteQuestion(item.id)}
-                okText="Ya, Hapus"
-                cancelText="Batal"
+                okText='Ya, Hapus'
+                cancelText='Batal'
               >
                 <Button danger icon={<DeleteOutlined />}>
                   Hapus
@@ -157,7 +162,7 @@ const Questions = ({ subject, bankid, name }) => {
 
           {item.qtype === 1 && (
             <>
-              <Divider orientation="left" plain>
+              <Divider orientation='left' plain>
                 Opsi Jawaban
               </Divider>
               {/* -- UI OPSI JAWABAN YANG DIPERBAIKI DIMULAI DI SINI -- */}
@@ -169,8 +174,8 @@ const Questions = ({ subject, bankid, name }) => {
                     opt.text.trim() !== "" && (
                       <Col key={opt.key} xs={24} sm={24} md={12}>
                         <Flex
-                          align="start"
-                          gap="small"
+                          align='start'
+                          gap='small'
                           style={{
                             padding: "12px",
                             borderRadius: "8px",
@@ -212,11 +217,11 @@ const Questions = ({ subject, bankid, name }) => {
   };
 
   return (
-    <Flex vertical gap="large">
-      <Flex align="center" justify="space-between">
+    <Flex vertical gap='large'>
+      <Flex align='center' justify='space-between'>
         <Space>
           <Button
-            shape="circle"
+            shape='circle'
             icon={<ArrowLeftOutlined />}
             onClick={() => navigate("/computer-based-test")}
           />
@@ -224,27 +229,40 @@ const Questions = ({ subject, bankid, name }) => {
             <Typography.Title style={{ margin: 0 }} level={4}>
               Bank Soal: {name}
             </Typography.Title>
-            <Typography.Text type="secondary">{subject}</Typography.Text>
+            <Typography.Text type='secondary'>{subject}</Typography.Text>
           </div>
         </Space>
-        <Add onClick={() => handleOpenForm(null)} />
+
+        <Space>
+          <Upload onClick={() => setOpenUpload(true)} />
+          <Add onClick={() => handleOpenForm(null)} />
+        </Space>
       </Flex>
+
+      {data?.questions.length === 0 ? (
+        <Empty description='Data pertanyaan belum tersedia' />
+      ) : (
+        <Spin tip='Memuat data...' spinning={isLoading || delLoading}>
+          <Flex vertical gap='large'>
+            {renderQuestionList()}
+
+            <Pagination
+              size='small'
+              align='center'
+              total={data?.totalData}
+              pageSize={limit}
+              current={page}
+              onChange={handlePaginationChange}
+              showSizeChanger
+              showTotal={(total, range) =>
+                `${range[0]}-${range[1]} dari ${total}`
+              }
+            />
+          </Flex>
+        </Spin>
+      )}
 
       {/* Question List */}
-      <Flex vertical gap="middle">
-        {renderQuestionList()}
-
-        <Pagination
-          size="small"
-          align="center"
-          total={data?.totalData}
-          pageSize={limit}
-          current={page}
-          onChange={handlePaginationChange}
-          showSizeChanger
-          showTotal={(total, range) => `${range[0]}-${range[1]} dari ${total}`}
-        />
-      </Flex>
 
       <FormQues
         title={editingQuestion ? "Ubah Soal" : "Tambah Soal"}
@@ -252,6 +270,13 @@ const Questions = ({ subject, bankid, name }) => {
         onClose={handleCloseForm}
         bankid={bankid}
         ques={editingQuestion} // Pass question data to form for editing
+      />
+
+      <FormUpload
+        title={`Upload pertanyaan ${name?.replace(/-/g, " ")}`}
+        open={openUpload}
+        onClose={() => setOpenUpload(false)}
+        bankid={bankid}
       />
     </Flex>
   );

@@ -70,35 +70,41 @@ const FormChapter = ({ title, open, onClose, chapter }) => {
       title={title}
       open={open}
       onCancel={onClose}
-      okText="Simpan"
-      cancelText="Tutup"
+      okText='Simpan'
+      cancelText='Tutup'
       destroyOnHidden
       onOk={() => form.submit()}
     >
-      <Spin tip="Memproses data" spinning={isLoading}>
-        <Form form={form} layout="vertical" onFinish={hanldeSubmit}>
+      <Spin tip='Memproses data' spinning={isLoading}>
+        <Form form={form} layout='vertical' onFinish={hanldeSubmit}>
           <Form.Item
-            name="title"
-            label="Nama Bab"
+            name='title'
+            label='Nama Bab'
             rules={[{ required: true, message: "Nama bab wajib diisi" }]}
           >
-            <Input placeholder="Nama Bab" />
+            <Input placeholder='Nama Bab' />
           </Form.Item>
 
-          <Form.Item name="target" label="Capaian Pembelajaran">
-            <Editor placeholder="Tuliskan Capaian Pembelajaran" height={250} />
+          <Form.Item name='target' label='Capaian Pembelajaran'>
+            <Editor placeholder='Tuliskan Capaian Pembelajaran' height={250} />
           </Form.Item>
 
           <Form.Item
-            name="classes"
-            label="Pilih Kelas"
+            name='classes'
+            label='Pilih Kelas'
             rules={[{ required: true, message: "Kelas wajib dipilih" }]}
           >
             <Select
-              mode="multiple"
-              placeholder="Pilih Kelas"
+              mode='multiple'
+              placeholder='Pilih Kelas'
               options={classOpts}
               allowClear
+              showSearch
+              filterOption={(input, option) =>
+                option.label.toLowerCase().includes(input.toLowerCase())
+              }
+              getPopupContainer={(triggerNode) => triggerNode.parentNode}
+              virtual={false}
             />
           </Form.Item>
         </Form>

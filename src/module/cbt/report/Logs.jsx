@@ -135,7 +135,7 @@ const Logs = ({ examid, classid, tableRef }) => {
       dataIndex: "createdat",
       key: "createdat",
       render: (text) => (
-        <Tag color="volcano">{text && new Date(text).toLocaleString()}</Tag>
+        <Tag color='volcano'>{text && new Date(text).toLocaleString()}</Tag>
       ),
     },
     {
@@ -143,11 +143,11 @@ const Logs = ({ examid, classid, tableRef }) => {
       key: "status",
       render: (record) =>
         record.ispenalty ? (
-          <Tag color="red">Melanggar</Tag>
+          <Tag color='red'>Melanggar</Tag>
         ) : record.isactive ? (
-          <Tag color="blue">Mengerjakan</Tag>
+          <Tag color='blue'>Mengerjakan</Tag>
         ) : record.isdone ? (
-          <Tag color="green">Selesai</Tag>
+          <Tag color='green'>Selesai</Tag>
         ) : (
           <Tag>Belum Masuk</Tag>
         ),
@@ -189,6 +189,7 @@ const Logs = ({ examid, classid, tableRef }) => {
       ),
     },
   ];
+
   return (
     <TableLayout
       tableRef={tableRef}
@@ -196,7 +197,7 @@ const Logs = ({ examid, classid, tableRef }) => {
       isLoading={isLoading || rejoingLoading || finishLoading || retakeLoading}
       columns={columns}
       source={data?.result}
-      rowKey="log_id"
+      rowKey='student_id'
       page={page}
       limit={limit}
       totalData={data?.totalData}

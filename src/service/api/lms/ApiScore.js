@@ -13,8 +13,27 @@ export const ApiScore = createApi({
     "summative",
     "attendance",
     "grades",
+    "weighting",
   ],
   endpoints: (builder) => ({
+    // Pembobotan
+    getWeighting: builder.query({
+      query: ({ subjectid }) => ({
+        url: "/get-weighting",
+        method: "GET",
+        params: { subjectid },
+      }),
+      providesTags: ["weighting"],
+    }),
+    saveWeighting: builder.mutation({
+      query: (body) => ({
+        url: "/save-weighting",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["weighting"],
+    }),
+
     // Fetch per-type score data (new minimal endpoints)
     getAttitude: builder.query({
       query: ({ classid, subjectid, chapterid, month, semester }) => ({
@@ -281,24 +300,6 @@ export const ApiScore = createApi({
       invalidatesTags: ["academic"],
     }),
 
-    // Final semester exam
-    getFinalSemesterExam: builder.query({
-      query: ({ classid, subjectid }) => ({
-        url: "/final-semester-exam",
-        params: { classid, subjectid },
-      }),
-      providesTags: ["grades"],
-    }),
-
-    createFinalSemesterExam: builder.mutation({
-      query: (body) => ({
-        url: "/add-final-semester-exam",
-        method: "POST",
-        body,
-      }),
-      invalidatesTags: ["grades"],
-    }),
-
     // Final grades calculation
     getFinalGrades: builder.query({
       query: ({ classid, subjectid }) => ({
@@ -306,15 +307,6 @@ export const ApiScore = createApi({
         params: { classid, subjectid },
       }),
       providesTags: ["grades"],
-    }),
-
-    calculateFinalGrade: builder.mutation({
-      query: (body) => ({
-        url: "/calculate-final-grade",
-        method: "POST",
-        body,
-      }),
-      invalidatesTags: ["grades"],
     }),
 
     // Comprehensive student report
@@ -392,6 +384,8 @@ export const ApiScore = createApi({
 });
 
 export const {
+  useGetWeightingQuery,
+  useSaveWeightingMutation,
   useGetAttitudeQuery,
   useUpsertAttitudeMutation,
   useBulkUpsertAttitudeMutation,
@@ -415,10 +409,7 @@ export const {
   useUpdateAttendanceRecordMutation,
   useGetDailySummativeQuery,
   useCreateDailySummativeMutation,
-  useGetFinalSemesterExamQuery,
-  useCreateFinalSemesterExamMutation,
   useGetFinalGradesQuery,
-  useCalculateFinalGradeMutation,
   useGetStudentReportQuery,
   useBulkSaveScoresMutation,
   useGetRecapQuery,

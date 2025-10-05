@@ -44,8 +44,10 @@ const Attitude = ({
   );
 
   const [upsertAttitude, { isLoading: isSaving }] = useUpsertAttitudeMutation();
-  const [bulkUpsertAttitude, { isLoading: isBulkUpserting }] =
-    useBulkUpsertAttitudeMutation();
+  const [
+    bulkUpsertAttitude,
+    { isLoading: isBulkUpserting, data, error, isSuccess, reset },
+  ] = useBulkUpsertAttitudeMutation();
 
   // Efek untuk mereset skor jika parameter URL berubah
   useEffect(() => {
@@ -69,6 +71,19 @@ const Attitude = ({
       if (Object.keys(mapped).length > 0) setAttitudeScores(mapped);
     }
   }, [attitudeData]);
+
+  useEffect(() => {
+    if (isSuccess) {
+      message.success(data.message);
+      reset();
+      setIsModalOpen(false);
+    }
+
+    if (error) {
+      message.error(error.data.message);
+      reset();
+    }
+  }, [data, error, isSuccess]);
 
   // Handler untuk perubahan input nilai
   const handleScoreChange = (studentId, field, value) => {
@@ -243,7 +258,7 @@ const Attitude = ({
       width: 120,
       render: (_, record) => (
         <Input
-          type="number"
+          type='number'
           min={0}
           max={100}
           // PERBAIKAN: Gunakan record.student sebagai key
@@ -251,7 +266,7 @@ const Attitude = ({
           onChange={(e) =>
             handleScoreChange(record.student, "kinerja", e.target.value)
           }
-          placeholder="0-100"
+          placeholder='0-100'
         />
       ),
     },
@@ -261,7 +276,7 @@ const Attitude = ({
       width: 120,
       render: (_, record) => (
         <Input
-          type="number"
+          type='number'
           min={0}
           max={100}
           // PERBAIKAN: Gunakan record.student sebagai key
@@ -269,7 +284,7 @@ const Attitude = ({
           onChange={(e) =>
             handleScoreChange(record.student, "kedisiplinan", e.target.value)
           }
-          placeholder="0-100"
+          placeholder='0-100'
         />
       ),
     },
@@ -279,7 +294,7 @@ const Attitude = ({
       width: 120,
       render: (_, record) => (
         <Input
-          type="number"
+          type='number'
           min={0}
           max={100}
           // PERBAIKAN: Gunakan record.student sebagai key
@@ -287,7 +302,7 @@ const Attitude = ({
           onChange={(e) =>
             handleScoreChange(record.student, "keaktifan", e.target.value)
           }
-          placeholder="0-100"
+          placeholder='0-100'
         />
       ),
     },
@@ -297,7 +312,7 @@ const Attitude = ({
       width: 120,
       render: (_, record) => (
         <Input
-          type="number"
+          type='number'
           min={0}
           max={100}
           // PERBAIKAN: Gunakan record.student sebagai key
@@ -305,7 +320,7 @@ const Attitude = ({
           onChange={(e) =>
             handleScoreChange(record.student, "percayaDiri", e.target.value)
           }
-          placeholder="0-100"
+          placeholder='0-100'
         />
       ),
     },
@@ -321,7 +336,7 @@ const Attitude = ({
           onChange={(e) =>
             handleScoreChange(record.student, "catatan", e.target.value)
           }
-          placeholder="Catatan..."
+          placeholder='Catatan...'
         />
       ),
     },
@@ -341,8 +356,8 @@ const Attitude = ({
       fixed: "right",
       render: (_, record) => (
         <Button
-          type="primary"
-          size="small"
+          type='primary'
+          size='small'
           onClick={() => handleSave(record)}
           loading={isSaving}
         >
@@ -354,7 +369,7 @@ const Attitude = ({
 
   return (
     <Card
-      title="Penilaian Sikap"
+      title='Penilaian Sikap'
       extra={
         <Space>
           <Button
@@ -366,7 +381,7 @@ const Attitude = ({
           <Button
             icon={<DownloadOutlined />}
             onClick={handleDownloadTemplate}
-            type="primary"
+            type='primary'
           >
             Download Template
           </Button>
@@ -377,7 +392,7 @@ const Attitude = ({
         columns={columns}
         dataSource={students}
         // rowKey tetap 'id' karena ini adalah unique key untuk setiap baris data di prop 'students'
-        rowKey="id"
+        rowKey='id'
         bordered
         // 3. Konfigurasi pagination dan loading sebagai controlled component
         loading={isLoading}
@@ -392,7 +407,7 @@ const Attitude = ({
       />
 
       <UploadBulk
-        title="Upload Nilai Sikap (Bulk)"
+        title='Upload Nilai Sikap (Bulk)'
         open={isModalOpen}
         onCancel={() => setIsModalOpen(false)}
         onUpload={handleBulkUpload}

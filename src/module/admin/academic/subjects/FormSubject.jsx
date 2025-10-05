@@ -128,61 +128,75 @@ const FormSubject = ({ open, onClose, title, subject }) => {
       open={open}
       onCancel={onClose}
       destroyOnHidden
+      okText='Simpan'
+      cancelText='Tutup'
       confirmLoading={isLoading}
+      loading={isLoading}
       onOk={() => form.submit()}
-      okText={"Simpan"}
     >
       <Form
         form={form}
-        layout="vertical"
+        layout='vertical'
         onFinish={handleSubmit}
         style={{ marginTop: 24 }}
       >
         <Form.Item
-          name="categoryid"
-          label="Pilih Kategori"
+          name='categoryid'
+          label='Pilih Kategori'
           rules={[{ required: true, message: "Kategori wajib dipilih" }]}
         >
           <Select
             allowClear
-            placeholder="Pilih Kategori"
+            placeholder='Pilih Kategori'
             options={catsOpts}
             loading={catsLoading}
             labelInValue
+            showSearch
+            filterOption={(input, option) =>
+              option.label.toLowerCase().includes(input.toLowerCase())
+            }
+            getPopupContainer={(triggerNode) => triggerNode.parentNode}
+            virtual={false}
           />
         </Form.Item>
 
         <Form.Item
-          name="branchid"
-          label="Pilih Rumpun"
+          name='branchid'
+          label='Pilih Rumpun'
           rules={[{ required: true, message: "Rumpun wajib dipilih" }]}
         >
           <Select
             allowClear
-            placeholder="Pilih Rumpun"
+            placeholder='Pilih Rumpun'
             options={branchesOpts}
             loading={branchesLoading}
             labelInValue
+            showSearch
+            filterOption={(input, option) =>
+              option.label.toLowerCase().includes(input.toLowerCase())
+            }
+            getPopupContainer={(triggerNode) => triggerNode.parentNode}
+            virtual={false}
           />
         </Form.Item>
 
         <Form.Item
-          name="name"
-          label="Nama Pelajaran"
+          name='name'
+          label='Nama Pelajaran'
           rules={[
             { required: true, message: "Nama pelajaran tidak boleh kosong!" },
           ]}
         >
-          <Input placeholder="Contoh: Matematika" />
+          <Input placeholder='Contoh: Matematika' />
         </Form.Item>
 
         {/* PERBAIKAN 2: UI Upload yang lebih modern */}
-        <Form.Item label="Cover Gambar">
+        <Form.Item label='Cover Gambar'>
           <Upload.Dragger {...uploadProps}>
             {imageUrl ? (
               <img
                 src={imageUrl}
-                alt="Preview"
+                alt='Preview'
                 style={{
                   width: "100%",
                   maxHeight: "180px",
@@ -191,13 +205,13 @@ const FormSubject = ({ open, onClose, title, subject }) => {
               />
             ) : (
               <>
-                <p className="ant-upload-drag-icon">
+                <p className='ant-upload-drag-icon'>
                   <InboxOutlined />
                 </p>
-                <p className="ant-upload-text">
+                <p className='ant-upload-text'>
                   Klik atau seret file ke area ini
                 </p>
-                <p className="ant-upload-hint">
+                <p className='ant-upload-hint'>
                   Gunakan gambar yang menarik sebagai cover.
                 </p>
               </>
@@ -205,7 +219,7 @@ const FormSubject = ({ open, onClose, title, subject }) => {
           </Upload.Dragger>
           {imageUrl && (
             <Button
-              type="text"
+              type='text'
               danger
               onClick={uploadProps.onRemove}
               style={{ marginTop: 8, padding: 0 }}

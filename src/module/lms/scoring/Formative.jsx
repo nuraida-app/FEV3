@@ -42,8 +42,10 @@ const Formative = ({
 
   const [upsertFormative, { isLoading: isSaving }] =
     useUpsertFormativeMutation();
-  const [bulkUpsertFormative, { isLoading: isBulkUpserting }] =
-    useBulkUpsertFormativeMutation();
+  const [
+    bulkUpsertFormative,
+    { isLoading: isBulkUpserting, data, error, isSuccess, reset },
+  ] = useBulkUpsertFormativeMutation();
 
   // Mengisi state skor dari data yang diambil
   useEffect(() => {
@@ -64,6 +66,19 @@ const Formative = ({
       setFormativeScores(mapped);
     }
   }, [formativeData]);
+
+  useEffect(() => {
+    if (isSuccess) {
+      message.success(data.message);
+      reset();
+      setIsModalOpen(false);
+    }
+
+    if (error) {
+      message.error(error.data.message);
+      reset();
+    }
+  }, [data, error, isSuccess]);
 
   // Handler untuk perubahan input nilai
   const handleScoreChange = (studentId, taskNumber, value) => {
@@ -112,13 +127,7 @@ const Formative = ({
       F_8: scores.f_8 ? Number(scores.f_8) : null,
     };
 
-    try {
-      const result = await upsertFormative(payload).unwrap();
-      message.success(result.message || "Nilai berhasil disimpan!");
-      refetch();
-    } catch (err) {
-      message.error(err.data?.message || "Gagal menyimpan nilai.");
-    }
+    upsertFormative(payload);
   };
 
   // Handler untuk mengunduh template Excel
@@ -167,14 +176,8 @@ const Formative = ({
       semester,
       data: dataToUpload,
     };
-    try {
-      await bulkUpsertFormative(payload).unwrap();
-      message.success("Data nilai berhasil di-upload!");
-      setIsModalOpen(false);
-      refetch();
-    } catch (err) {
-      message.error(err.data?.message || "Gagal mengupload file.");
-    }
+
+    bulkUpsertFormative(payload);
   };
 
   const handleTableChange = (pagination) => {
@@ -209,11 +212,11 @@ const Formative = ({
       width: 100,
       render: (_, record) => (
         <Input
-          type="number"
+          type='number'
           min={0}
           max={100}
           style={{ textAlign: "center" }}
-          placeholder="0-100"
+          placeholder='0-100'
           value={formativeScores[record.student]?.[`f_${taskNumber}`] ?? ""}
           onChange={(e) =>
             handleScoreChange(record.student, taskNumber, e.target.value)
@@ -240,8 +243,8 @@ const Formative = ({
       fixed: "right",
       render: (_, record) => (
         <Button
-          type="primary"
-          size="small"
+          type='primary'
+          size='small'
           onClick={() => handleSave(record)}
           loading={isSaving}
         >
@@ -255,7 +258,7 @@ const Formative = ({
 
   return (
     <Card
-      title="Penilaian Formatif"
+      title='Penilaian Formatif'
       extra={
         <Space>
           <Button
@@ -267,7 +270,7 @@ const Formative = ({
           <Button
             icon={<DownloadOutlined />}
             onClick={handleDownloadTemplate}
-            type="primary"
+            type='primary'
           >
             Download Template
           </Button>
@@ -277,7 +280,7 @@ const Formative = ({
       <Table
         columns={columns}
         dataSource={students}
-        rowKey="id"
+        rowKey='id'
         bordered
         loading={isLoading}
         pagination={{
@@ -290,7 +293,7 @@ const Formative = ({
         scroll={{ x: 1500 }}
       />
       <UploadBulk
-        title="Upload Nilai Formatif (Bulk)"
+        title='Upload Nilai Formatif (Bulk)'
         open={isModalOpen}
         onCancel={() => setIsModalOpen(false)}
         onUpload={handleBulkUpload}

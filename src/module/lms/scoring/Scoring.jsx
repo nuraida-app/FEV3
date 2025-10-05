@@ -1,17 +1,22 @@
 import { FileTextOutlined, SettingOutlined } from "@ant-design/icons";
 import { Card, Col, Flex, Row, Tooltip, Typography } from "antd";
+import { useState } from "react";
 import { useSelector } from "react-redux";
 import { useSearchParams } from "react-router-dom";
+import FormWeight from "./FormWeight";
 
 const { Meta } = Card;
 
 const Scoring = () => {
+  const [open, setOpen] = useState(false);
+  const [subject, setSubject] = useState("");
+
   const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useSelector((state) => state.auth);
 
   const subjectsData = user?.subjects;
 
-  const handleSelect = (item) => {
+  const handleSelectScore = (item) => {
     setSearchParams({
       mode: "scoring",
       name: item.name?.replace(/\s+/g, "-"),
@@ -19,8 +24,18 @@ const Scoring = () => {
     });
   };
 
+  const handleSelectWeight = (item) => {
+    setSubject(item);
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setSubject("");
+    setOpen(false);
+  };
+
   return (
-    <Flex vertical gap="middle">
+    <Flex vertical gap='middle'>
       <Typography.Title level={5}>
         Pilih Mata Pelajaran Untuk Penilaian
       </Typography.Title>
@@ -37,11 +52,11 @@ const Scoring = () => {
                 />
               }
               actions={[
-                <Tooltip title="Penilaian" key={"scoring"}>
-                  <FileTextOutlined onClick={() => handleSelect(item)} />
+                <Tooltip title='Penilaian' key={"scoring"}>
+                  <FileTextOutlined onClick={() => handleSelectScore(item)} />
                 </Tooltip>,
-                <Tooltip title="Pembobotan" key={"setting"}>
-                  <SettingOutlined />
+                <Tooltip title='Pembobotan' key={"setting"}>
+                  <SettingOutlined onClick={() => handleSelectWeight(item)} />
                 </Tooltip>,
               ]}
             >
@@ -50,6 +65,13 @@ const Scoring = () => {
           </Col>
         ))}
       </Row>
+
+      <FormWeight
+        title={`Pembobotan Nilai ${subject?.name}`}
+        open={open}
+        onClose={handleClose}
+        subject={subject}
+      />
     </Flex>
   );
 };

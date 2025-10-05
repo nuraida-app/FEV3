@@ -35,6 +35,9 @@ const CbtControl = lazy(() => import("./module/cbt/control/CbtControl"));
 // LMS
 const LmsControl = lazy(() => import("./module/lms/control/LmsControl"));
 
+// Database
+const Database = lazy(() => import("./module/database/Database"));
+
 const App = () => {
   const isSignin = localStorage.getItem("isSignin");
 
@@ -49,37 +52,40 @@ const App = () => {
       <BrowserRouter>
         <Suspense fallback={<LoadingScreen />}>
           <Routes>
-            <Route path="/" element={<Login />} />
+            <Route path='/' element={<Login />} />
 
             {/* Center */}
-            <Route path="/center-dashboard" element={<CenterDash />} />
+            <Route path='/center-dashboard' element={<CenterDash />} />
 
-            <Route path="/center-admin" element={<CenterAdmin />} />
+            <Route path='/center-admin' element={<CenterAdmin />} />
 
-            <Route path="/center-satuan" element={<CenterHomebase />} />
+            <Route path='/center-satuan' element={<CenterHomebase />} />
 
-            <Route path="/center-market" element={<CenterAnalysis />} />
+            <Route path='/center-market' element={<CenterAnalysis />} />
 
             {/* Admin */}
-            <Route path="/admin-dashboard" element={<AdminDash />} />
+            <Route path='/admin-dashboard' element={<AdminDash />} />
 
-            <Route path="/admin-data-pokok" element={<AdminData />} />
+            <Route path='/admin-data-pokok' element={<AdminData />} />
 
-            <Route path="/admin-data-siswa" element={<AdminStudent />} />
+            <Route path='/admin-data-siswa' element={<AdminStudent />} />
 
-            <Route path="/admin-data-akademik" element={<AdminAcademic />} />
+            <Route path='/admin-data-akademik' element={<AdminAcademic />} />
 
             {/* Teacher */}
-            <Route path="/guru-dashboard" element={<TeacherDash />} />
+            <Route path='/guru-dashboard' element={<TeacherDash />} />
 
             {/* CBT */}
-            <Route path="/computer-based-test" element={<CbtControl />} />
+            <Route path='/computer-based-test' element={<CbtControl />} />
 
             {/* LMS */}
             <Route
-              path="/learning-management-system"
+              path='/learning-management-system'
               element={<LmsControl />}
             />
+
+            {/* Database */}
+            <Route path='/database' element={<Database />} />
           </Routes>
         </Suspense>
       </BrowserRouter>

@@ -163,25 +163,25 @@ const FormExam = ({ title, open, onClose, exam }) => {
       open={open}
       onCancel={onClose}
       destroyOnHidden // Ganti destroyOnHidden menjadi destroyOnClose
-      okText="Simpan"
-      cancelText="Batal"
+      okText='Simpan'
+      cancelText='Batal'
       onOk={form.submit} // Disederhanakan
       confirmLoading={isCreating}
       style={{ top: 20 }}
     >
       <Form
         form={form}
-        layout="vertical"
+        layout='vertical'
         onFinish={handleSubmit}
         initialValues={{ mc_score: 100, essay_score: 0, isshuffle: false }}
       >
         <Form.Item
-          name="teacher"
-          label="Pilih Guru"
+          name='teacher'
+          label='Pilih Guru'
           rules={[{ required: true, message: "Pilih guru terlebih dahulu" }]}
         >
           <Select
-            placeholder="Cari Guru"
+            placeholder='Cari Guru'
             options={teacherOpts}
             onChange={handleTeacherChange}
             allowClear
@@ -190,69 +190,81 @@ const FormExam = ({ title, open, onClose, exam }) => {
             filterOption={(input, option) =>
               (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
             }
+            virtual={false}
           />
         </Form.Item>
 
         <Form.Item
-          name="bank"
-          label="Pilih Bank Soal"
+          name='bank'
+          label='Pilih Bank Soal'
           rules={[
             { required: true, message: "Pilih bank soal terlebih dahulu" },
           ]}
         >
           <Select
-            mode="multiple"
-            placeholder="Pilih satu atau lebih bank soal"
+            mode='multiple'
+            placeholder='Pilih satu atau lebih bank soal'
             options={bankOptions}
             onChange={handleBankChange}
             allowClear
+            virtual={false}
+            showSearch
+            filterOption={(input, option) =>
+              (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+            }
           />
         </Form.Item>
 
         <Form.Item
-          name="classes"
-          label="Untuk Kelas"
+          name='classes'
+          label='Untuk Kelas'
           rules={[{ required: true, message: "Pilih kelas terlebih dahulu" }]}
         >
           <Select
-            mode="multiple"
-            placeholder="Pilih satu atau lebih kelas"
+            mode='multiple'
+            placeholder='Pilih satu atau lebih kelas'
             options={classOpts}
             allowClear
+            showSearch
+            filterOption={(input, option) =>
+              option.label.toLowerCase().includes(input.toLowerCase())
+            }
+            getPopupContainer={(triggerNode) => triggerNode.parentNode}
+            virtual={false}
           />
         </Form.Item>
 
         <Form.Item
-          name="name"
-          label="Nama Ujian"
+          name='name'
+          label='Nama Ujian'
           rules={[{ required: true, message: "Masukkan nama ujian" }]}
         >
-          <Input placeholder="maks 30 karakter" maxLength={30} />
+          <Input placeholder='maks 30 karakter' maxLength={30} />
         </Form.Item>
 
         <Form.Item
-          name="duration"
-          label="Durasi (Menit)"
+          name='duration'
+          label='Durasi (Menit)'
           rules={[{ required: true, message: "Masukkan durasi ujian" }]}
         >
           <InputNumber
             style={{ width: "100%" }}
-            placeholder="Masukkan durasi dalam menit"
+            placeholder='Masukkan durasi dalam menit'
             min={1}
           />
         </Form.Item>
 
         <Form.Item
-          name="mc_score"
-          label="Persentase Nilai PG"
+          name='mc_score'
+          label='Persentase Nilai PG'
           rules={[{ required: true, message: "Masukkan persentase nilai PG" }]}
         >
           <InputNumber style={{ width: "100%" }} min={0} max={100} />
         </Form.Item>
 
         <Form.Item
-          name="essay_score"
-          label="Persentase Nilai Essay"
+          name='essay_score'
+          label='Persentase Nilai Essay'
           rules={[
             { required: true, message: "Masukkan persentase nilai essay" },
           ]}
@@ -260,7 +272,7 @@ const FormExam = ({ title, open, onClose, exam }) => {
           <InputNumber style={{ width: "100%" }} min={0} max={100} />
         </Form.Item>
 
-        <Form.Item name="isshuffle" label="Acak Soal?" valuePropName="checked">
+        <Form.Item name='isshuffle' label='Acak Soal?' valuePropName='checked'>
           <Switch />
         </Form.Item>
       </Form>

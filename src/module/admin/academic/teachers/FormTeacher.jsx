@@ -93,70 +93,78 @@ const FormTeacher = ({ title, open, onClose, teacher }) => {
       title={title}
       open={open}
       onCancel={onClose}
-      onOk={handleSubmit}
+      okText='Simpan'
+      cancelText='Tutup'
       confirmLoading={isLoading}
-      okText="Simpan"
-      cancelText="Batal"
+      loading={isLoading}
+      onOk={() => form.submit()}
       destroyOnHidden // Ensures form state is reset when the modal is closed
     >
       <Form
         form={form}
-        layout="vertical"
-        name="teacherForm"
+        layout='vertical'
+        name='teacherForm'
         style={{ marginTop: 24 }}
+        onFinish={handleSubmit}
       >
         {/* Hidden input to store the teacher's ID for updates */}
-        <Form.Item name="id" hidden>
+        <Form.Item name='id' hidden>
           <Input />
         </Form.Item>
 
         <Form.Item
-          name="username"
-          label="Username"
+          name='username'
+          label='Username'
           rules={[{ required: true, message: "Username is required" }]}
         >
-          <Input placeholder="Enter username" />
+          <Input placeholder='Enter username' />
         </Form.Item>
 
         <Form.Item
-          name="name"
-          label="Nama Guru"
+          name='name'
+          label='Nama Guru'
           rules={[{ required: true, message: "Name is required" }]}
         >
           <Input placeholder="Enter teacher's name" />
         </Form.Item>
 
         <Form.Item
-          name="gender"
-          label="Jenis Kelamin"
+          name='gender'
+          label='Jenis Kelamin'
           rules={[{ required: true, message: "Gender is required" }]}
         >
-          <Select placeholder="Select gender">
-            <Option value="L">Laki-laki</Option>
-            <Option value="P">Perempuan</Option>
+          <Select placeholder='Select gender'>
+            <Option value='L'>Laki-laki</Option>
+            <Option value='P'>Perempuan</Option>
           </Select>
         </Form.Item>
 
-        <Form.Item name="subjects" label="Mata Pelajaran">
+        <Form.Item name='subjects' label='Mata Pelajaran'>
           <Select
-            mode="multiple"
+            mode='multiple'
             allowClear
-            placeholder="Select subjects"
+            placeholder='Select subjects'
             options={subjectOpts}
             loading={isSubjectLoading}
             labelInValue // This prop ensures the value is an object {value, label}
+            showSearch
+            filterOption={(input, option) =>
+              option.label.toLowerCase().includes(input.toLowerCase())
+            }
+            getPopupContainer={(triggerNode) => triggerNode.parentNode}
+            virtual={false}
           />
         </Form.Item>
 
-        <Form.Item name="homeroom" valuePropName="checked">
+        <Form.Item name='homeroom' valuePropName='checked'>
           <Checkbox>Wali Kelas</Checkbox>
         </Form.Item>
 
         {/* Conditionally render the class selection if 'Wali Kelas' is checked */}
         {isHomeroom && (
           <Form.Item
-            name="classid"
-            label="Kelas Wali"
+            name='classid'
+            label='Kelas Wali'
             rules={[
               {
                 required: true,
@@ -165,9 +173,15 @@ const FormTeacher = ({ title, open, onClose, teacher }) => {
             ]}
           >
             <Select
-              placeholder="Select class"
+              placeholder='Select class'
               options={classOpts}
               loading={isClassLoading}
+              showSearch
+              filterOption={(input, option) =>
+                option.label.toLowerCase().includes(input.toLowerCase())
+              }
+              getPopupContainer={(triggerNode) => triggerNode.parentNode}
+              virtual={false}
             />
           </Form.Item>
         )}

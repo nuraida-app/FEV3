@@ -42,33 +42,10 @@ const Summative = ({
 
   const [upsertSummative, { isLoading: isSaving }] =
     useUpsertSummativeMutation();
-  const [bulkUpsertSummative, { isLoading: isBulkUpserting }] =
-    useBulkUpsertSummativeMutation();
-
-  useEffect(() => {
-    if (summativeData && Array.isArray(summativeData)) {
-      const mapped = summativeData.reduce((acc, row) => {
-        acc[row.student_id] = {
-          oral: row.oral ?? "",
-          written: row.written ?? "",
-          project: row.project ?? "",
-          performance: row.performance ?? "",
-        };
-        return acc;
-      }, {});
-      setSummativeScores(mapped);
-    }
-  }, [summativeData]);
-
-  const handleScoreChange = (studentId, field, value) => {
-    setSummativeScores((prev) => ({
-      ...prev,
-      [studentId]: {
-        ...prev[studentId],
-        [field]: value,
-      },
-    }));
-  };
+  const [
+    bulkUpsertSummative,
+    { isLoading: isBulkUpserting, isSuccess, data, error, reset },
+  ] = useBulkUpsertSummativeMutation();
 
   const calculateAverage = (studentId) => {
     const scores = summativeScores[studentId];
@@ -161,20 +138,52 @@ const Summative = ({
       semester,
       data: dataToUpload,
     };
-    try {
-      await bulkUpsertSummative(payload).unwrap();
-      message.success("Data nilai berhasil di-upload!");
-      setIsModalOpen(false);
-      refetch();
-    } catch (err) {
-      message.error(err.data?.message || "Gagal mengupload file.");
-    }
+
+    bulkUpsertSummative(payload);
   };
 
   const handleTableChange = (pagination) => {
     setPage(pagination.current);
     setLimit(pagination.pageSize);
   };
+
+  useEffect(() => {
+    if (summativeData && Array.isArray(summativeData)) {
+      const mapped = summativeData.reduce((acc, row) => {
+        acc[row.student_id] = {
+          oral: row.oral ?? "",
+          written: row.written ?? "",
+          project: row.project ?? "",
+          performance: row.performance ?? "",
+        };
+        return acc;
+      }, {});
+      setSummativeScores(mapped);
+    }
+  }, [summativeData]);
+
+  const handleScoreChange = (studentId, field, value) => {
+    setSummativeScores((prev) => ({
+      ...prev,
+      [studentId]: {
+        ...prev[studentId],
+        [field]: value,
+      },
+    }));
+  };
+
+  useEffect(() => {
+    if (isSuccess) {
+      message.success(data.message);
+      reset();
+      setIsModalOpen(false);
+    }
+
+    if (error) {
+      message.error(error.data.message);
+      reset();
+    }
+  }, [data, error, isSuccess]);
 
   const scoreColumnsConfig = [
     { title: "Lisan", key: "oral" },
@@ -205,10 +214,10 @@ const Summative = ({
       width: 120,
       render: (_, record) => (
         <Input
-          type="number"
+          type='number'
           min={0}
           max={100}
-          placeholder="0-100"
+          placeholder='0-100'
           value={summativeScores[record.student]?.[col.key] ?? ""}
           onChange={(e) =>
             handleScoreChange(record.student, col.key, e.target.value)
@@ -232,8 +241,8 @@ const Summative = ({
       fixed: "right",
       render: (_, record) => (
         <Button
-          type="primary"
-          size="small"
+          type='primary'
+          size='small'
           onClick={() => handleSave(record)}
           loading={isSaving}
         >
@@ -245,7 +254,7 @@ const Summative = ({
 
   return (
     <Card
-      title="Penilaian Sumatif"
+      title='Penilaian Sumatif'
       extra={
         <Space>
           <Button
@@ -257,7 +266,7 @@ const Summative = ({
           <Button
             icon={<DownloadOutlined />}
             onClick={handleDownloadTemplate}
-            type="primary"
+            type='primary'
           >
             Download Template
           </Button>
@@ -267,7 +276,7 @@ const Summative = ({
       <Table
         columns={columns}
         dataSource={students}
-        rowKey="id"
+        rowKey='id'
         bordered
         loading={isLoading}
         pagination={{
@@ -280,7 +289,7 @@ const Summative = ({
         scroll={{ x: 1200 }}
       />
       <UploadBulk
-        title="Upload Nilai Sumatif (Bulk)"
+        title='Upload Nilai Sumatif (Bulk)'
         open={isModalOpen}
         onCancel={() => setIsModalOpen(false)}
         onUpload={handleBulkUpload}

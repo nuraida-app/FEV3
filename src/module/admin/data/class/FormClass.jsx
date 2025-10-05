@@ -86,39 +86,54 @@ const FormClass = ({ title, open, setOpen, classData, setClassData }) => {
       destroyOnHidden
       onCancel={handleClose}
       style={{ top: 20 }}
-      footer={[
-        <Cancel key="cancel" onClick={handleClose} />,
-        <Save key="add" onClick={() => form.submit()} />,
-      ]}
+      okText='Simpan'
+      cancelText='Tutup'
+      onOk={() => form.submit()}
+      confirmLoading={isLoading}
+      loading={isLoading}
     >
-      <Spin spinning={isLoading} tip="Memuat data...">
-        <Form form={form} onFinish={handleSubmit} layout="vertical">
+      <Spin spinning={isLoading} tip='Memuat data...'>
+        <Form form={form} onFinish={handleSubmit} layout='vertical'>
           <Form.Item
-            name="gradeId"
-            label="Pilih Tingkat"
+            name='gradeId'
+            label='Pilih Tingkat'
             rules={[{ required: true, message: "Wajid diisi" }]}
           >
             <Select
-              placeholder="Pilih Tingkat"
+              placeholder='Pilih Tingkat'
               options={gradeOptions}
               onChange={handleSelectGrade}
+              allowClear
+              showSearch
+              filterOption={(input, option) =>
+                option.label.toLowerCase().includes(input.toLowerCase())
+              }
+              getPopupContainer={(triggerNode) => triggerNode.parentNode}
+              virtual={false}
             />
           </Form.Item>
 
-          <Form.Item name="majorId" label="Pilih Jurusan">
+          <Form.Item name='majorId' label='Pilih Jurusan'>
             <Select
-              placeholder="Pilih Jurusan"
+              placeholder='Pilih Jurusan'
               options={majorOptions}
               onChange={handleSelectMajor}
+              allowClear
+              showSearch
+              filterOption={(input, option) =>
+                option.label.toLowerCase().includes(input.toLowerCase())
+              }
+              getPopupContainer={(triggerNode) => triggerNode.parentNode}
+              virtual={false}
             />
           </Form.Item>
 
           <Form.Item
-            name="name"
-            label="Nama Kelas"
+            name='name'
+            label='Nama Kelas'
             rules={[{ required: true, message: "Kolom wajib diisi" }]}
           >
-            <Input placeholder="Nama Kelas" />
+            <Input placeholder='Nama Kelas' />
           </Form.Item>
         </Form>
       </Spin>

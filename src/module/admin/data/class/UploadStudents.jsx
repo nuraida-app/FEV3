@@ -121,79 +121,73 @@ const UploadStudents = ({ open, onClose }) => {
 
   return (
     <Modal
-      title="Bulk Upload Students"
+      title='Bulk Upload Students'
       open={open}
       onCancel={handleCancel}
       destroyOnHidden
       width={700}
       style={{ top: 20 }}
-      footer={[
-        <Cancel key="cancel" onClick={handleCancel} />,
-        <Save
-          key="save"
-          onClick={handleSubmit}
-          loading={isLoading}
-          disabled={bulk.length === 0}
-        />,
-      ]}
+      okText='Simpan'
+      cancelText='Tutup'
+      onOk={handleSubmit}
+      confirmLoading={isLoading}
+      loading={isLoading}
     >
-      <Space direction="vertical" style={{ width: "100%" }} size="large">
+      <Space direction='vertical' style={{ width: "100%" }} size='large'>
         <Alert
-          message="Follow these steps"
+          message='Follow these steps'
           description={
-            <Space direction="vertical" size={2}>
-              <Text>1. Download the provided Excel template.</Text>
-              <Text>
-                2. Fill in the student data according to the template.
-              </Text>
-              <Text>3. Upload the completed file to the area below.</Text>
+            <Space direction='vertical' size={2}>
+              <Text>1. Unduh template excel yang sudah disediakan.</Text>
+              <Text>2. Isikan data siswa berdasarkan kolom yang tersedia.</Text>
+              <Text>3. Upload kembali file yang sudah diisi.</Text>
 
-              <Button type="primary" size="small" onClick={handleDownload}>
+              <Button type='primary' size='small' onClick={handleDownload}>
                 Download Template
               </Button>
             </Space>
           }
-          type="info"
+          type='info'
           showIcon
         />
 
         {!file ? (
           <Dragger
-            name="file"
-            accept=".xlsx, .xls, .csv"
+            name='file'
+            accept='.xlsx, .xls, .csv'
             beforeUpload={(selectedFile) => {
               setFile(selectedFile);
               return false;
             }}
           >
-            <p className="ant-upload-drag-icon">
+            <p className='ant-upload-drag-icon'>
               <InboxOutlined />
             </p>
-            <p className="ant-upload-text">
+            <p className='ant-upload-text'>
               Click or drag file to this area to upload
             </p>
-            <p className="ant-upload-hint">
+            <p className='ant-upload-hint'>
               Ensure the file matches the template format.
             </p>
           </Dragger>
         ) : (
-          <Space direction="vertical" style={{ width: "100%" }}>
+          <Space direction='vertical' style={{ width: "100%" }}>
             <Flex
-              align="center"
-              justify="space-between"
+              align='center'
+              justify='space-between'
               style={{
                 background: "#f0f0f0",
                 padding: "8px 12px",
                 borderRadius: "6px",
               }}
             >
-              <Flex align="center" gap="small">
+              <Flex align='center' gap='small'>
                 <FileExcelOutlined style={{ color: "#217346", fontSize: 20 }} />
                 <Text strong>{file.name}</Text>
-                <Tag color="green">{bulk.length} records found</Tag>
+                <Tag color='green'>{bulk.length} records found</Tag>
               </Flex>
               <Button
-                type="text"
+                type='text'
                 danger
                 icon={<CloseCircleOutlined />}
                 onClick={() => setFile(null)}
@@ -213,7 +207,7 @@ const UploadStudents = ({ open, onClose }) => {
                     key: index,
                     ...row,
                   }))}
-                  size="small"
+                  size='small'
                   pagination={{ pageSize: 5, showSizeChanger: false }}
                   scroll={{ y: 240 }}
                 />

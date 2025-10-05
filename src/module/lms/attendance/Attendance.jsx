@@ -45,27 +45,37 @@ const Attendance = () => {
 
   return (
     <Flex vertical gap={"middle"}>
-      <Card hoverable title="Managemen Kehadiran Siswa">
+      <Card hoverable title='Managemen Kehadiran Siswa'>
         <Row gutter={[16, 16]}>
           <Col sm={24} md={12}>
             <Select
               style={{ width: "100%" }}
-              placeholder="Pilih Mata Pelajran"
+              placeholder='Pilih Mata Pelajran'
               allowClear
               options={subjectOpts}
-              loading={isLoading}
               onChange={handleSelectSubject}
+              showSearch
+              filterOption={(input, option) =>
+                option.label.toLowerCase().includes(input.toLowerCase())
+              }
+              getPopupContainer={(triggerNode) => triggerNode.parentNode}
+              virtual={false}
             />
           </Col>
 
           <Col sm={24} md={12}>
             <Select
               style={{ width: "100%" }}
-              placeholder="Pilih Kelas"
+              placeholder='Pilih Kelas'
               allowClear
               options={classOpts}
-              loading={isLoading}
               onChange={handleSelectClass}
+              showSearch
+              filterOption={(input, option) =>
+                option.label.toLowerCase().includes(input.toLowerCase())
+              }
+              getPopupContainer={(triggerNode) => triggerNode.parentNode}
+              virtual={false}
             />
           </Col>
         </Row>
@@ -76,7 +86,7 @@ const Attendance = () => {
       ) : (
         <Empty
           description={
-            <Typography.Text type="secondary">
+            <Typography.Text type='secondary'>
               Silakan pilih mata pelajaran dan kelas terlebih dahulu untuk
               melihat data presensi
             </Typography.Text>
