@@ -1,52 +1,73 @@
-import { useSearchParams } from "react-router-dom";
 import { useGetStudentDataQuery } from "../../service/api/database/ApiDatabase";
-import { Skeleton, Tabs } from "antd";
+import { Skeleton, Tabs, Typography } from "antd"; // Import Typography
 import PersonalData from "./PersonalData";
 import ParentData from "./ParentData";
 import FamilyData from "./FamilyData";
 import { Fragment } from "react";
-import Title from "antd/es/typography/Title";
 
-const SingleDatabase = ({ formInput, studentid, nis, name }) => {
-  // Mengambil data siswa berdasarkan studentid
-  const { data, isLoading, isError } = useGetStudentDataQuery(studentid);
+const { Title } = Typography;
 
-  // Menampilkan skeleton loading saat data sedang diambil
+const SingleDatabase = ({ studentid, name }) => {
+  // Mengambil data siswa dan fungsi refetch
+  const { data, isLoading, isError, refetch } =
+    useGetStudentDataQuery(studentid);
+
+  // Skeleton loading tetap ada
   if (isLoading) {
     return <Skeleton active paragraph={{ rows: 10 }} />;
   }
 
-  if (isError) {
-    return <Title level={5}>Gagal memuat data siswa.</Title>;
-  }
+  // JIKA isError (data tidak ditemukan), kita tetap render form
+  // dengan data kosong. Jika tidak error, kita gunakan data dari API.
+  const studentData = data?.data || {}; // Default ke objek kosong jika data tidak ada
+  const familyData = data?.data?.family || []; // Default ke array kosong
 
-  // Definisikan item untuk Tabs
-  // Label 'Biodata' kedua diubah menjadi 'Keluarga' agar tidak duplikat
   const items = [
     {
       label: "Biodata Siswa",
       key: "1",
-      // Teruskan data siswa ke komponen PersonalData
-      children: <PersonalData studentData={data?.data} />,
+      children: (
+        <PersonalData
+          studentData={studentData}
+          userid={studentid} // Teruskan studentid sebagai userid
+          onRefetch={refetch} // Teruskan fungsi refetch
+        />
+      ),
     },
     {
       label: "Data Orang Tua",
       key: "2",
-      // Teruskan data siswa ke komponen ParentData
-      children: <ParentData studentData={data?.data} />,
+      children: (
+        <ParentData
+          studentData={studentData}
+          userid={studentid} // Teruskan studentid sebagai userid
+          onRefetch={refetch} // Teruskan fungsi refetch
+        />
+      ),
     },
     {
       label: "Data Keluarga",
       key: "3",
-      // Teruskan array 'family' ke komponen FamilyData
-      children: <FamilyData familyData={data?.data?.family} />,
+      children: (
+        <FamilyData
+          familyData={familyData}
+          userid={studentid}
+          onRefetch={refetch} // Teruskan fungsi refetch
+        />
+      ),
     },
   ];
 
   return (
     <Fragment>
       <title>{`Data Siswa ${name?.replace(/-/g, " ")}`}</title>
-      <Tabs defaultActiveKey='1' centered items={items} />
+      {isError && (
+        <Title level={5} type="warning" style={{ marginBottom: 16 }}>
+          Data siswa tidak ditemukan. Silakan isi form di bawah untuk
+          menambahkan data baru.
+        </Title>
+      )}
+      <Tabs defaultActiveKey="1" centered items={items} />
     </Fragment>
   );
 };

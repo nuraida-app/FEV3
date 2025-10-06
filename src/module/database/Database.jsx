@@ -48,7 +48,6 @@ const Database = () => {
   };
 
   const handleInput = (student) => {
-    console.log(student);
     setSearchParams({
       form: "teacher-input",
       studentid: student.student_id,
@@ -101,7 +100,7 @@ const Database = () => {
       key: "student_id",
       render: (record, text) => (
         <Button
-          type='primary'
+          type="primary"
           icon={<EditOutlined />}
           onClick={() => handleInput(text)}
         >
@@ -116,7 +115,7 @@ const Database = () => {
         <Flex vertical gap={"middle"}>
           <Space>
             <Button
-              shape='circle'
+              shape="circle"
               icon={<ArrowLeftOutlined />}
               onClick={() => setSearchParams({})}
             />
@@ -140,7 +139,7 @@ const Database = () => {
             isLoading={isLoading}
             columns={columns}
             source={data?.students}
-            rowKey='student_id'
+            rowKey="student_id"
             page={page}
             limit={limit}
             totalData={data?.totalData}

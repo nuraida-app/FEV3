@@ -16,7 +16,36 @@ export const ApiParent = createApi({
       }),
       providesTags: ["parents"],
     }),
+    saveParent: builder.mutation({
+      query: (body) => ({
+        url: "/add-parent",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["parents"],
+    }),
+    deleteParent: builder.mutation({
+      query: (id) => ({
+        url: "/delete-parent",
+        params: { id },
+        method: "DELETE",
+      }),
+      invalidatesTags: ["parents"],
+    }),
+    uploadParents: builder.mutation({
+      query: (body) => ({
+        url: "/upload-parents",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["parents"],
+    }),
   }),
 });
 
-export const { useGetParentsQuery } = ApiParent;
+export const {
+  useGetParentsQuery,
+  useSaveParentMutation,
+  useDeleteParentMutation,
+  useUploadParentsMutation,
+} = ApiParent;

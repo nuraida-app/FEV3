@@ -23,7 +23,7 @@ import {
   useGetVillageQuery,
 } from "../../service/api/database/ApiArea";
 import {
-  useAddStudentDataMutation, // Asumsikan ini untuk update juga
+  useAddStudentDataMutation,
   useGetPeriodeQuery,
   useGetHomebaseQuery,
 } from "../../service/api/database/ApiDatabase";
@@ -31,8 +31,9 @@ import dayjs from "dayjs";
 
 const { Title } = Typography;
 
-const PersonalData = ({ studentData, onRefetch }) => {
-  const [isEditing, setIsEditing] = useState(false);
+const PersonalData = ({ studentData, onRefetch, userid }) => {
+  // Jika tidak ada studentData.userid, anggap ini form baru dan langsung masuk mode edit
+  const [isEditing, setIsEditing] = useState(!studentData?.userid);
   const [form] = Form.useForm();
   const [selectedProvince, setSelectedProvince] = useState(
     studentData?.provinceid
@@ -42,7 +43,6 @@ const PersonalData = ({ studentData, onRefetch }) => {
     studentData?.districtid
   );
 
-  // ** Mengambil data untuk dropdown **
   const { data: periodeData, isLoading: isPeriodeLoading } =
     useGetPeriodeQuery();
   const { data: homebaseData, isLoading: isHomebaseLoading } =
@@ -65,52 +65,92 @@ const PersonalData = ({ studentData, onRefetch }) => {
   const [addStudentData, { isLoading: isUpdating }] =
     useAddStudentDataMutation();
 
-  // ** Mengisi form dengan data awal **
   useEffect(() => {
     if (studentData) {
-      form.setFieldsValue({
+      const initialValues = {
         ...studentData,
+        entryid: studentData.entryid?.toString(),
+        homebaseid: studentData.homebaseid?.toString(),
+        provinceid: studentData.provinceid?.toString(),
+        cityid: studentData.cityid?.toString(),
+        districtid: studentData.districtid?.toString(),
+        villageid: studentData.villageid?.toString().trim(),
         birth_date: studentData.birth_date
           ? dayjs(studentData.birth_date)
           : null,
-        villageid: studentData.villageid?.trim(), // Pastikan villageid di-trim
-      });
-      // Set state awal untuk dropdown wilayah
+      };
+      form.setFieldsValue(initialValues);
       setSelectedProvince(studentData.provinceid);
       setSelectedCity(studentData.cityid);
       setSelectedDistrict(studentData.districtid);
     }
-  }, [studentData]);
+  }, [studentData, form]);
 
   const handleEdit = () => setIsEditing(true);
+
   const handleCancel = () => {
     setIsEditing(false);
-    // Reset form ke nilai awal jika dibatalkan
-    form.resetFields();
+    if (studentData) {
+      form.resetFields();
+      const initialValues = {
+        ...studentData,
+        entryid: studentData.entryid?.toString(),
+        homebaseid: studentData.homebaseid?.toString(),
+        provinceid: studentData.provinceid?.toString(),
+        cityid: studentData.cityid?.toString(),
+        districtid: studentData.districtid?.toString(),
+        villageid: studentData.villageid?.toString().trim(),
+        birth_date: studentData.birth_date
+          ? dayjs(studentData.birth_date)
+          : null,
+      };
+      form.setFieldsValue(initialValues);
+    }
   };
 
   const onFinish = async (values) => {
+    const selectedPeriode = periodeData?.find(
+      (p) => p.id.toString() === values.entryid
+    );
+    const selectedHomebase = homebaseData?.find(
+      (h) => h.id.toString() === values.homebaseid
+    );
+    const selectedProvince = provinces?.find(
+      (p) => p.id.toString() === values.provinceid
+    );
+    const selectedCity = cities?.find((c) => c.id.toString() === values.cityid);
+    const selectedDistrict = districts?.find(
+      (d) => d.id.toString() === values.districtid
+    );
+    const selectedVillage = villages?.find(
+      (v) => v.id.toString().trim() === values.villageid
+    );
+
     const payload = {
       ...values,
-      userid: studentData.userid,
+      userid: userid, // Gunakan userid dari props
+      entry_name: selectedPeriode ? selectedPeriode.name : "",
+      homebase_name: selectedHomebase ? selectedHomebase.name : "",
+      province_name: selectedProvince ? selectedProvince.name : "",
+      city_name: selectedCity ? selectedCity.name : "",
+      district_name: selectedDistrict ? selectedDistrict.name : "",
+      village_name: selectedVillage ? selectedVillage.name : "",
       birth_date: values.birth_date
         ? dayjs(values.birth_date).format("YYYY-MM-DD")
         : null,
     };
-    console.log("Data yang akan disimpan:", payload);
 
     try {
       await addStudentData(payload).unwrap();
-      message.success("Data siswa berhasil diperbarui!");
+      message.success("Data siswa berhasil disimpan!");
       setIsEditing(false);
-      if (onRefetch) onRefetch(); // Panggil refetch jika ada
+      if (onRefetch) onRefetch();
     } catch (error) {
-      message.error(error.data?.message || "Gagal memperbarui data.");
+      message.error(error.data?.message || "Gagal menyimpan data.");
     }
   };
 
-  // ** Menangani perubahan pada dropdown wilayah **
-  const handleValuesChange = (changedValues, allValues) => {
+  const handleValuesChange = (changedValues) => {
     if (changedValues.provinceid) {
       setSelectedProvince(changedValues.provinceid);
       setSelectedCity(null);
@@ -128,254 +168,231 @@ const PersonalData = ({ studentData, onRefetch }) => {
     }
   };
 
-  // ** Opsi untuk Select (Dropdown) **
   const mapToOptions = (data) =>
     data?.map((item) => ({
-      value: item.id.toString().trim(), // Trim ID untuk village
+      value: item.id.toString().trim(),
       label: item.name,
     })) || [];
 
-  // ** Tampilan Mode Lihat **
   const renderViewMode = () => (
-    <Descriptions bordered column={{ xs: 1, sm: 1, md: 2 }} layout='vertical'>
-      <Descriptions.Item label='Tahun Pelajaran'>
+    <Descriptions bordered column={{ xs: 1, sm: 1, md: 2 }} layout="vertical">
+      <Descriptions.Item label="Tahun Pelajaran">
         {studentData?.entry_name}
       </Descriptions.Item>
-      <Descriptions.Item label='Satuan Pendidikan'>
+      <Descriptions.Item label="Satuan Pendidikan">
         {studentData?.homebase_name}
       </Descriptions.Item>
-      <Descriptions.Item label='Nama Lengkap'>
+      <Descriptions.Item label="Nama Lengkap">
         {studentData?.name}
       </Descriptions.Item>
-      <Descriptions.Item label='Jenis Kelamin'>
+      <Descriptions.Item label="Jenis Kelamin">
         {studentData?.gender === "P" ? "Perempuan" : "Laki-laki"}
       </Descriptions.Item>
-      <Descriptions.Item label='NIS'>{studentData?.nis}</Descriptions.Item>
-      <Descriptions.Item label='NISN'>{studentData?.nisn}</Descriptions.Item>
-      <Descriptions.Item label='Tempat & Tanggal Lahir'>{`${
-        studentData?.birth_place
-      }, ${dayjs(studentData?.birth_date).format(
-        "DD MMMM YYYY"
-      )}`}</Descriptions.Item>
-      <Descriptions.Item label='Anak Ke / Dari Bersaudara'>{`${
+      <Descriptions.Item label="NIS">{studentData?.nis}</Descriptions.Item>
+      <Descriptions.Item label="NISN">{studentData?.nisn}</Descriptions.Item>
+      <Descriptions.Item label="Tempat & Tanggal Lahir">{`${
+        studentData?.birth_place || "-"
+      }, ${
+        studentData?.birth_date
+          ? dayjs(studentData?.birth_date).format("DD MMMM YYYY")
+          : "-"
+      }`}</Descriptions.Item>
+      <Descriptions.Item label="Anak Ke / Dari Bersaudara">{`${
         studentData?.order_number || "-"
       } / ${studentData?.siblings || "-"} bersaudara`}</Descriptions.Item>
-      <Descriptions.Item label='Tinggi / Berat / Kepala'>{`${
+      <Descriptions.Item label="Tinggi / Berat / Kepala">{`${
         studentData?.height || "-"
       } cm / ${studentData?.weight || "-"} kg / ${
         studentData?.head || "-"
       } cm`}</Descriptions.Item>
-      <Descriptions.Item label='Alamat' span={2}>
-        {`${studentData?.address}, ${studentData?.village_name}, ${
-          studentData?.district_name
-        }, ${studentData?.city_name}, ${studentData?.province_name} ${
-          studentData?.postal_code || ""
-        }`}
-      </Descriptions.Item>
+      <Descriptions.Item label="Alamat" span={2}>{`${
+        studentData?.address || ""
+      }, ${studentData?.village_name || ""}, ${
+        studentData?.district_name || ""
+      }, ${studentData?.city_name || ""}, ${studentData?.province_name || ""} ${
+        studentData?.postal_code || ""
+      }`}</Descriptions.Item>
     </Descriptions>
   );
 
-  // ** Tampilan Mode Edit (Form) **
   const renderEditMode = () => (
-    <Form
-      form={form}
-      layout='vertical'
-      onFinish={onFinish}
-      onValuesChange={handleValuesChange}
-    >
-      <Row gutter={[16, 0]}>
-        {/* Data Pendidikan */}
-        <Col xs={24} md={12}>
-          <Form.Item
-            name='entryid'
-            label='Tahun Pelajaran'
-            rules={[{ required: true }]}
-          >
-            <Select
-              loading={isPeriodeLoading}
-              options={mapToOptions(periodeData)}
-              placeholder='Pilih Tahun Pelajaran'
-            />
-          </Form.Item>
-        </Col>
-        <Col xs={24} md={12}>
-          <Form.Item
-            name='homebaseid'
-            label='Satuan Pendidikan'
-            rules={[{ required: true }]}
-          >
-            <Select
-              loading={isHomebaseLoading}
-              options={mapToOptions(homebaseData)}
-              placeholder='Pilih Satuan Pendidikan'
-            />
-          </Form.Item>
-        </Col>
-
-        {/* Data Pribadi */}
-        <Col xs={24} md={12}>
-          <Form.Item
-            name='name'
-            label='Nama Lengkap'
-            rules={[{ required: true }]}
-          >
-            <Input />
-          </Form.Item>
-        </Col>
-        <Col xs={24} md={12}>
-          <Form.Item
-            name='gender'
-            label='Jenis Kelamin'
-            rules={[{ required: true }]}
-          >
-            <Select
-              options={[
-                { value: "L", label: "Laki-laki" },
-                { value: "P", label: "Perempuan" },
-              ]}
-            />
-          </Form.Item>
-        </Col>
-        <Col xs={24} md={12}>
-          <Form.Item name='nis' label='NIS'>
-            <Input />
-          </Form.Item>
-        </Col>
-        <Col xs={24} md={12}>
-          <Form.Item name='nisn' label='NISN'>
-            <Input />
-          </Form.Item>
-        </Col>
-        <Col xs={24} md={12}>
-          <Form.Item name='birth_place' label='Tempat Lahir'>
-            <Input />
-          </Form.Item>
-        </Col>
-        <Col xs={24} md={12}>
-          <Form.Item name='birth_date' label='Tanggal Lahir'>
-            <DatePicker style={{ width: "100%" }} />
-          </Form.Item>
-        </Col>
-
-        {/* Data Fisik */}
-        <Col xs={12} md={8}>
-          <Form.Item name='height' label='Tinggi (cm)'>
-            <InputNumber style={{ width: "100%" }} />
-          </Form.Item>
-        </Col>
-        <Col xs={12} md={8}>
-          <Form.Item name='weight' label='Berat (kg)'>
-            <InputNumber style={{ width: "100%" }} />
-          </Form.Item>
-        </Col>
-        <Col xs={24} md={8}>
-          <Form.Item name='head' label='Kepala (cm)'>
-            <InputNumber style={{ width: "100%" }} />
-          </Form.Item>
-        </Col>
-        <Col xs={12} md={12}>
-          <Form.Item name='order_number' label='Anak Ke-'>
-            <InputNumber style={{ width: "100%" }} />
-          </Form.Item>
-        </Col>
-        <Col xs={12} md={12}>
-          <Form.Item name='siblings' label='Jumlah Saudara'>
-            <InputNumber style={{ width: "100%" }} />
-          </Form.Item>
-        </Col>
-
-        {/* Data Alamat */}
-        <Col xs={24} md={12}>
-          <Form.Item
-            name='provinceid'
-            label='Provinsi'
-            rules={[{ required: true }]}
-          >
-            <Select
-              loading={isProvinceLoading}
-              options={mapToOptions(provinces)}
-              placeholder='Pilih Provinsi'
-              showSearch
-              filterOption={(input, option) =>
-                (option?.label ?? "")
-                  .toLowerCase()
-                  .includes(input.toLowerCase())
-              }
-            />
-          </Form.Item>
-        </Col>
-        <Col xs={24} md={12}>
-          <Form.Item
-            name='cityid'
-            label='Kota/Kabupaten'
-            rules={[{ required: true }]}
-          >
-            <Select
-              loading={isCityLoading}
-              disabled={!selectedProvince}
-              options={mapToOptions(cities)}
-              placeholder='Pilih Kota/Kabupaten'
-              showSearch
-              filterOption={(input, option) =>
-                (option?.label ?? "")
-                  .toLowerCase()
-                  .includes(input.toLowerCase())
-              }
-            />
-          </Form.Item>
-        </Col>
-        <Col xs={24} md={12}>
-          <Form.Item
-            name='districtid'
-            label='Kecamatan'
-            rules={[{ required: true }]}
-          >
-            <Select
-              loading={isDistrictLoading}
-              disabled={!selectedCity}
-              options={mapToOptions(districts)}
-              placeholder='Pilih Kecamatan'
-              showSearch
-              filterOption={(input, option) =>
-                (option?.label ?? "")
-                  .toLowerCase()
-                  .includes(input.toLowerCase())
-              }
-            />
-          </Form.Item>
-        </Col>
-        <Col xs={24} md={12}>
-          <Form.Item
-            name='villageid'
-            label='Desa/Kelurahan'
-            rules={[{ required: true }]}
-          >
-            <Select
-              loading={isVillageLoading}
-              disabled={!selectedDistrict}
-              options={mapToOptions(villages)}
-              placeholder='Pilih Desa/Kelurahan'
-              showSearch
-              filterOption={(input, option) =>
-                (option?.label ?? "")
-                  .toLowerCase()
-                  .includes(input.toLowerCase())
-              }
-            />
-          </Form.Item>
-        </Col>
-        <Col xs={24} md={12}>
-          <Form.Item name='postal_code' label='Kode Pos'>
-            <Input />
-          </Form.Item>
-        </Col>
-        <Col xs={24}>
-          <Form.Item name='address' label='Alamat Lengkap (Nama Jalan, RT/RW)'>
-            <Input.TextArea />
-          </Form.Item>
-        </Col>
-      </Row>
-    </Form>
+    <Row gutter={[16, 0]}>
+      <Col xs={24} md={12}>
+        <Form.Item
+          name="entryid"
+          label="Tahun Pelajaran"
+          rules={[{ required: true }]}
+        >
+          <Select
+            loading={isPeriodeLoading}
+            options={mapToOptions(periodeData)}
+            placeholder="Pilih Tahun Pelajaran"
+          />
+        </Form.Item>
+      </Col>
+      <Col xs={24} md={12}>
+        <Form.Item
+          name="homebaseid"
+          label="Satuan Pendidikan"
+          rules={[{ required: true }]}
+        >
+          <Select
+            loading={isHomebaseLoading}
+            options={mapToOptions(homebaseData)}
+            placeholder="Pilih Satuan Pendidikan"
+          />
+        </Form.Item>
+      </Col>
+      <Col xs={24} md={12}>
+        <Form.Item
+          name="name"
+          label="Nama Lengkap"
+          rules={[{ required: true }]}
+        >
+          <Input />
+        </Form.Item>
+      </Col>
+      <Col xs={24} md={12}>
+        <Form.Item
+          name="gender"
+          label="Jenis Kelamin"
+          rules={[{ required: true }]}
+        >
+          <Select
+            options={[
+              { value: "L", label: "Laki-laki" },
+              { value: "P", label: "Perempuan" },
+            ]}
+          />
+        </Form.Item>
+      </Col>
+      <Col xs={24} md={12}>
+        <Form.Item name="nis" label="NIS">
+          <Input />
+        </Form.Item>
+      </Col>
+      <Col xs={24} md={12}>
+        <Form.Item name="nisn" label="NISN">
+          <Input />
+        </Form.Item>
+      </Col>
+      <Col xs={24} md={12}>
+        <Form.Item name="birth_place" label="Tempat Lahir">
+          <Input />
+        </Form.Item>
+      </Col>
+      <Col xs={24} md={12}>
+        <Form.Item name="birth_date" label="Tanggal Lahir">
+          <DatePicker style={{ width: "100%" }} />
+        </Form.Item>
+      </Col>
+      <Col xs={12} md={8}>
+        <Form.Item name="height" label="Tinggi (cm)">
+          <InputNumber style={{ width: "100%" }} />
+        </Form.Item>
+      </Col>
+      <Col xs={12} md={8}>
+        <Form.Item name="weight" label="Berat (kg)">
+          <InputNumber style={{ width: "100%" }} />
+        </Form.Item>
+      </Col>
+      <Col xs={24} md={8}>
+        <Form.Item name="head" label="Kepala (cm)">
+          <InputNumber style={{ width: "100%" }} />
+        </Form.Item>
+      </Col>
+      <Col xs={12} md={12}>
+        <Form.Item name="order_number" label="Anak Ke-">
+          <InputNumber style={{ width: "100%" }} />
+        </Form.Item>
+      </Col>
+      <Col xs={12} md={12}>
+        <Form.Item name="siblings" label="Jumlah Saudara">
+          <InputNumber style={{ width: "100%" }} />
+        </Form.Item>
+      </Col>
+      <Col xs={24} md={12}>
+        <Form.Item
+          name="provinceid"
+          label="Provinsi"
+          rules={[{ required: true }]}
+        >
+          <Select
+            loading={isProvinceLoading}
+            options={mapToOptions(provinces)}
+            showSearch
+            virtual={false}
+            filterOption={(input, option) =>
+              (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+            }
+          />
+        </Form.Item>
+      </Col>
+      <Col xs={24} md={12}>
+        <Form.Item
+          name="cityid"
+          label="Kota/Kabupaten"
+          rules={[{ required: true }]}
+        >
+          <Select
+            loading={isCityLoading}
+            disabled={!selectedProvince}
+            options={mapToOptions(cities)}
+            showSearch
+            virtual={false}
+            filterOption={(input, option) =>
+              (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+            }
+          />
+        </Form.Item>
+      </Col>
+      <Col xs={24} md={12}>
+        <Form.Item
+          name="districtid"
+          label="Kecamatan"
+          rules={[{ required: true }]}
+        >
+          <Select
+            loading={isDistrictLoading}
+            disabled={!selectedCity}
+            options={mapToOptions(districts)}
+            showSearch
+            virtual={false}
+            filterOption={(input, option) =>
+              (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+            }
+          />
+        </Form.Item>
+      </Col>
+      <Col xs={24} md={12}>
+        <Form.Item
+          name="villageid"
+          label="Desa/Kelurahan"
+          rules={[{ required: true }]}
+        >
+          <Select
+            loading={isVillageLoading}
+            disabled={!selectedDistrict}
+            options={mapToOptions(villages)}
+            showSearch
+            virtual={false}
+            filterOption={(input, option) =>
+              (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+            }
+          />
+        </Form.Item>
+      </Col>
+      <Col xs={24} md={12}>
+        <Form.Item name="postal_code" label="Kode Pos">
+          <Input />
+        </Form.Item>
+      </Col>
+      <Col xs={24}>
+        <Form.Item name="address" label="Alamat Lengkap (Nama Jalan, RT/RW)">
+          <Input.TextArea />
+        </Form.Item>
+      </Col>
+    </Row>
   );
 
   return (
@@ -387,24 +404,34 @@ const PersonalData = ({ studentData, onRefetch }) => {
             <Space>
               <Button
                 icon={<SaveOutlined />}
-                type='primary'
+                type="primary"
                 onClick={() => form.submit()}
                 loading={isUpdating}
               >
                 Simpan
               </Button>
-              <Button icon={<CloseOutlined />} onClick={handleCancel}>
-                Batal
-              </Button>
+              {/* Hanya tampilkan tombol Batal jika ada data awal (mode edit) */}
+              {studentData?.userid && (
+                <Button icon={<CloseOutlined />} onClick={handleCancel}>
+                  Batal
+                </Button>
+              )}
             </Space>
           ) : (
-            <Button icon={<EditOutlined />} type='primary' onClick={handleEdit}>
+            <Button icon={<EditOutlined />} type="primary" onClick={handleEdit}>
               Edit Biodata
             </Button>
           )
         }
       >
-        {isEditing ? renderEditMode() : renderViewMode()}
+        <Form
+          form={form}
+          layout="vertical"
+          onFinish={onFinish}
+          onValuesChange={handleValuesChange}
+        >
+          {isEditing ? renderEditMode() : renderViewMode()}
+        </Form>
       </Card>
     </Spin>
   );

@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
-import { Dropdown, Flex, Space, Typography, message } from "antd";
+import { Dropdown, Flex, Modal, Space, Typography, message } from "antd";
 import TableLayout from "../../../../components/table/TableLayout";
-import { useGetParentsQuery } from "../../../../service/api/main/ApiParent";
-import Reset from "../../../../components/buttons/Reset";
+import {
+  useDeleteParentMutation,
+  useGetParentsQuery,
+} from "../../../../service/api/main/ApiParent";
 
 const { Text } = Typography;
+const { confirm } = Modal;
 
 const TableData = ({ onEdit }) => {
   const [page, setPage] = useState(1);
@@ -12,6 +15,10 @@ const TableData = ({ onEdit }) => {
   const [search, setSearch] = useState("");
 
   const { data, isLoading } = useGetParentsQuery({ page, limit, search });
+  const [
+    deleteParent,
+    { data: delMessage, error, isLoading: delLoading, isSuccess },
+  ] = useDeleteParentMutation();
 
   //   Functions
   const handleSearch = (value) => {
@@ -29,15 +36,16 @@ const TableData = ({ onEdit }) => {
   };
 
   const handleDelete = (id) => {
-    const confirm = window.confirm(
-      "Apakah anda yakin akan menghapus siswa ini?!"
-    );
-
-    if (confirm) {
-      message.info(id);
-    } else {
-      message.warning("Aksi dibatalkan");
-    }
+    confirm({
+      title: "Apakah anda yakin akan menghapus data ini?",
+      content: "Data yang sudah terhapus tidak bisa dikembalikan",
+      okText: "Ya, Hapus",
+      cancelText: "Batal",
+      okType: "danger",
+      onOk() {
+        deleteParent(id);
+      },
+    });
   };
 
   const handleSelect = (record, { key }) => {
@@ -59,16 +67,15 @@ const TableData = ({ onEdit }) => {
     }
   };
 
-  //   Effects
-  // useEffect(() => {
-  //   if (isSuccess) {
-  //     message.success(delMessage.message);
-  //   }
+  useEffect(() => {
+    if (isSuccess) {
+      message.success(delMessage.message);
+    }
 
-  //   if (error) {
-  //     message.error(error.data.message);
-  //   }
-  // }, [delMessage, isSuccess, error]);
+    if (error) {
+      message.error(error.data.message);
+    }
+  }, [delMessage, isSuccess, error]);
 
   const columns = [
     {
@@ -138,7 +145,7 @@ const TableData = ({ onEdit }) => {
   return (
     <TableLayout
       onSearch={handleSearch}
-      isLoading={isLoading}
+      isLoading={isLoading || delLoading}
       columns={columns}
       source={data?.data}
       rowKey="parent_id"

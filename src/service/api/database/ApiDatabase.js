@@ -65,6 +65,7 @@ export const ApiDatabase = createApi({
         method: "DELETE",
         params: { id },
       }),
+      invalidatesTags: ["Database"],
     }),
     exportDatabase: builder.query({
       query: () => ({

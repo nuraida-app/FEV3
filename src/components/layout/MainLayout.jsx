@@ -73,7 +73,7 @@ const MainLayout = ({ children, levels, title }) => {
         secondaryMenuItems = TeacherMenus.slice(4);
       } else {
         // Jika bukan wali kelas, tampilkan semua menu
-        mainMenuItems = TeacherMenus.slice(0, 4);
+        mainMenuItems = TeacherMenus.slice(0, 3);
         secondaryMenuItems = TeacherMenus.slice(4);
       }
       break;
@@ -142,7 +142,7 @@ const MainLayout = ({ children, levels, title }) => {
           zIndex: 1000,
           color: "#fff",
         }}
-        breakpoint='lg'
+        breakpoint="lg"
         onBreakpoint={(broken) => {
           if (broken) {
             handleCollapsedChange(true);
@@ -160,10 +160,10 @@ const MainLayout = ({ children, levels, title }) => {
           }}
         >
           {collapsed ? (
-            <img src='logo.png' alt='logo' height={40} />
+            <img src="logo.png" alt="logo" height={40} />
           ) : (
-            <Flex align='center' gap={12}>
-              <img src='logo.png' alt='logo' height={40} />
+            <Flex align="center" gap={12}>
+              <img src="logo.png" alt="logo" height={40} />
               <Title level={5} style={{ color: "#fff", margin: 0 }}>
                 NURAIDA
               </Title>
@@ -183,14 +183,14 @@ const MainLayout = ({ children, levels, title }) => {
             items={mainMenuItems}
             selectedKeys={[location.pathname]}
             onClick={handleMenuClick}
-            theme='dark'
+            theme="dark"
           />
 
           <Menu
             items={secondaryMenuItems}
             selectedKeys={[location.pathname]}
             onClick={handleMenuClick}
-            theme='dark'
+            theme="dark"
           />
         </div>
       </Sider>
@@ -219,7 +219,7 @@ const MainLayout = ({ children, levels, title }) => {
           }}
         >
           <Button
-            type='default'
+            type="default"
             icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
             onClick={() => handleCollapsedChange(!collapsed)}
           />
@@ -262,7 +262,7 @@ const MainLayout = ({ children, levels, title }) => {
             overflow: "auto",
           }}
         >
-          <Spin spinning={isLoading} tip='Loading...'>
+          <Spin spinning={isLoading} tip="Loading...">
             {children}
           </Spin>
         </Content>
