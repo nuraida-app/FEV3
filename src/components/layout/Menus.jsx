@@ -5,10 +5,12 @@ import {
   DatabaseOutlined,
   DesktopOutlined,
   DotChartOutlined,
+  FolderAddOutlined,
   FolderOutlined,
   HomeOutlined,
   IdcardOutlined,
   LogoutOutlined,
+  RiseOutlined,
   SettingOutlined,
   TeamOutlined,
   UserOutlined,
@@ -116,6 +118,22 @@ export const TahfizMenus = [
     key: "/tahfiz-dashboard",
     icon: <WindowsOutlined />,
   },
+  {
+    label: "Alqur'an",
+    key: "/tahfiz-alquran",
+    icon: <FolderAddOutlined />,
+  },
+  {
+    label: "Penilaian",
+    key: "/tahfiz-penilaian",
+    icon: <RiseOutlined />,
+  },
+  {
+    label: "Hafalan",
+    key: "/tahfiz-hafalan",
+    icon: <AuditOutlined />,
+  },
+
   { label: "Profile", key: "/profile", icon: <UserOutlined /> },
   { label: "Logout", key: "logout", icon: <LogoutOutlined />, danger: true },
 ];

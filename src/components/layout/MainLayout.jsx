@@ -15,7 +15,14 @@ import {
 } from "antd";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { AdminMenus, CenterMenus, TeacherMenus } from "./Menus";
+import {
+  AdminMenus,
+  CenterMenus,
+  ParentMenus,
+  StudentMenus,
+  TahfizMenus,
+  TeacherMenus,
+} from "./Menus";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useLogoutMutation } from "../../service/api/auth/ApiAuth";
 import { setLogout } from "../../service/slice/AuthSlice";
@@ -86,8 +93,8 @@ const MainLayout = ({ children, levels, title }) => {
       secondaryMenuItems = ParentMenus.slice(1);
       break;
     case "tahfiz":
-      mainMenuItems = TahfizMenus.slice(0, 1);
-      secondaryMenuItems = TahfizMenus.slice(1);
+      mainMenuItems = TahfizMenus.slice(0, 4);
+      secondaryMenuItems = TahfizMenus.slice(4);
       break;
     default:
       // Menu kosong jika level tidak dikenali
@@ -142,7 +149,7 @@ const MainLayout = ({ children, levels, title }) => {
           zIndex: 1000,
           color: "#fff",
         }}
-        breakpoint="lg"
+        breakpoint='lg'
         onBreakpoint={(broken) => {
           if (broken) {
             handleCollapsedChange(true);
@@ -160,10 +167,10 @@ const MainLayout = ({ children, levels, title }) => {
           }}
         >
           {collapsed ? (
-            <img src="logo.png" alt="logo" height={40} />
+            <img src='logo.png' alt='logo' height={40} />
           ) : (
-            <Flex align="center" gap={12}>
-              <img src="logo.png" alt="logo" height={40} />
+            <Flex align='center' gap={12}>
+              <img src='logo.png' alt='logo' height={40} />
               <Title level={5} style={{ color: "#fff", margin: 0 }}>
                 NURAIDA
               </Title>
@@ -183,14 +190,14 @@ const MainLayout = ({ children, levels, title }) => {
             items={mainMenuItems}
             selectedKeys={[location.pathname]}
             onClick={handleMenuClick}
-            theme="dark"
+            theme='dark'
           />
 
           <Menu
             items={secondaryMenuItems}
             selectedKeys={[location.pathname]}
             onClick={handleMenuClick}
-            theme="dark"
+            theme='dark'
           />
         </div>
       </Sider>
@@ -219,7 +226,7 @@ const MainLayout = ({ children, levels, title }) => {
           }}
         >
           <Button
-            type="default"
+            type='default'
             icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
             onClick={() => handleCollapsedChange(!collapsed)}
           />
@@ -262,7 +269,7 @@ const MainLayout = ({ children, levels, title }) => {
             overflow: "auto",
           }}
         >
-          <Spin spinning={isLoading} tip="Loading...">
+          <Spin spinning={isLoading} tip='Loading...'>
             {children}
           </Spin>
         </Content>

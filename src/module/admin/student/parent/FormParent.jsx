@@ -9,11 +9,16 @@ const FormParent = ({ open, onClose, title, parent }) => {
     useSaveParentMutation();
 
   const handleSubmit = (values) => {
+    const processedValues = {
+      ...values,
+      email: values.email ? values.email.toLowerCase() : "",
+    };
+
     if (parent.parent_id) {
-      const data = { id: parent.parent_id, ...values };
+      const data = { id: parent.parent_id, ...processedValues };
       saveParent(data);
     } else {
-      saveParent(values);
+      saveParent(processedValues);
     }
   };
 
@@ -49,36 +54,36 @@ const FormParent = ({ open, onClose, title, parent }) => {
       title={title}
       open={open}
       onCancel={onClose}
-      okText="Simpan"
-      cancelText="Tutup"
+      okText='Simpan'
+      cancelText='Tutup'
       onOk={() => form.submit()}
       destroyOnHidden
       loading={isLoading}
       confirmLoading={isLoading}
     >
-      <Form layout="vertical" form={form} onFinish={handleSubmit}>
+      <Form layout='vertical' form={form} onFinish={handleSubmit}>
         <Form.Item
-          name="nis"
-          label="NIS"
+          name='nis'
+          label='NIS'
           rules={[{ required: true, message: "NIS wajib diisi" }]}
         >
-          <Input placeholder="NIS" />
+          <Input placeholder='NIS' />
         </Form.Item>
 
         <Form.Item
-          name="name"
-          label="Nama Orang Tua"
+          name='name'
+          label='Nama Orang Tua'
           rules={[{ required: true, message: "Nama Orang tua wajib diisi" }]}
         >
-          <Input placeholder="Nama Orang Tua" />
+          <Input placeholder='Nama Orang Tua' />
         </Form.Item>
 
         <Form.Item
-          name="email"
-          label="Email"
+          name='email'
+          label='Email'
           rules={[{ required: true, message: "Email wajib diisi" }]}
         >
-          <Input placeholder="Email" />
+          <Input placeholder='Email' />
         </Form.Item>
       </Form>
     </Modal>

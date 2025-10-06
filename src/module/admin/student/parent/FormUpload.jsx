@@ -1,5 +1,5 @@
+import React, { useEffect, useState } from "react";
 import {
-  Alert,
   Button,
   Divider,
   Flex,
@@ -11,7 +11,6 @@ import {
   Upload,
   message,
 } from "antd";
-import React, { useEffect, useState } from "react";
 import * as XLSX from "xlsx";
 import {
   CheckCircleOutlined,
@@ -22,8 +21,9 @@ import {
 import { useUploadParentsMutation } from "../../../../service/api/main/ApiParent";
 
 const { Dragger } = Upload;
-const { Text, Title } = Typography;
+const { Text } = Typography;
 
+// Konfigurasi kolom untuk tabel pratinjau
 const previewColumns = [
   { title: "NIS", dataIndex: "nis", key: "nis" },
   { title: "NAMA ORANG TUA", dataIndex: "name", key: "name" },
@@ -32,243 +32,226 @@ const previewColumns = [
     title: "KETERANGAN",
     dataIndex: "issue",
     key: "issue",
-    render: (text) => <Tag color="red">{text}</Tag>,
+    render: (text) => <Tag color='red'>{text}</Tag>,
   },
 ];
 
 const FormUpload = ({ open, onClose }) => {
+  // State management
   const [file, setFile] = useState(null);
   const [validRows, setValidRows] = useState([]);
   const [incompleteRows, setIncompleteRows] = useState([]);
   const [duplicateRows, setDuplicateRows] = useState([]);
+  const [previewKey, setPreviewKey] = useState(0); // Untuk mereset komponen Dragger
 
-  const [uploadParents, { isLoading, isSuccess, error, data }] =
+  // RTK Query Mutation Hook
+  const [uploadParents, { data, error, isLoading, isSuccess, reset }] =
     useUploadParentsMutation();
 
-  const handleDownload = () => {
-    window.open("/template/template_orangtua.xlsx");
+  // Fungsi untuk memproses file yang di-upload
+  const handleFile = (file) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: "array" });
+        const sheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[sheetName];
+        const json = XLSX.utils.sheet_to_json(worksheet, {
+          defval: "", // Beri nilai default string kosong jika sel kosong
+        });
+
+        // Proses setiap baris dari file
+        const processedRows = json.map((row) => ({
+          nis: row.NIS || row.nis,
+          name: row["NAMA ORANG TUA"] || row.name,
+          // Pastikan email ada, ubah ke string, dan konversi ke lowercase
+          email: row.EMAIL
+            ? String(row.EMAIL).toLowerCase()
+            : row.email
+            ? String(row.email).toLowerCase()
+            : "",
+        }));
+
+        // Lakukan validasi data
+        const seenNis = new Set();
+        const localValidRows = [];
+        const localIncompleteRows = [];
+        const localDuplicateRows = [];
+
+        processedRows.forEach((row) => {
+          if (!row.nis || !row.name || !row.email) {
+            row.issue = "Data tidak lengkap (NIS/Nama/Email wajib diisi)";
+            localIncompleteRows.push(row);
+          } else if (seenNis.has(row.nis)) {
+            row.issue = "NIS duplikat di dalam file ini";
+            localDuplicateRows.push(row);
+          } else {
+            seenNis.add(row.nis);
+            localValidRows.push(row);
+          }
+        });
+
+        // Update state dengan data yang sudah diproses
+        setValidRows(localValidRows);
+        setIncompleteRows(localIncompleteRows);
+        setDuplicateRows(localDuplicateRows);
+      } catch (err) {
+        message.error(
+          "Gagal memproses file. Pastikan format file sudah benar."
+        );
+        console.error("File processing error:", err);
+      }
+    };
+    reader.readAsArrayBuffer(file);
   };
 
-  const resetState = () => {
+  // Konfigurasi untuk komponen Dragger (area upload)
+  const draggerProps = {
+    name: "file",
+    multiple: false,
+    accept: ".xlsx, .xls, .csv",
+    beforeUpload: (file) => {
+      setFile(file);
+      handleFile(file);
+      return false; // Mencegah upload otomatis oleh Ant Design
+    },
+    onRemove: () => {
+      // Reset semua state jika file dihapus dari Dragger
+      setFile(null);
+      setValidRows([]);
+      setIncompleteRows([]);
+      setDuplicateRows([]);
+    },
+  };
+
+  // Fungsi untuk mengirim data valid ke server
+  const handleSubmit = () => {
+    if (validRows.length > 0) {
+      uploadParents({ parents: validRows });
+    } else {
+      message.warning("Tidak ada data valid untuk diunggah.");
+    }
+  };
+
+  // Fungsi untuk membersihkan state dan menutup modal
+  const handleClose = () => {
     setFile(null);
     setValidRows([]);
     setIncompleteRows([]);
     setDuplicateRows([]);
+    setPreviewKey((prev) => prev + 1); // Trik untuk mereset tampilan Dragger
+    onClose();
   };
 
-  const processFile = (file) => {
-    setFile(file);
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const data = new Uint8Array(e.target.result);
-      const workbook = XLSX.read(data, { type: "array" });
-      const sheetName = workbook.SheetNames[0];
-      const worksheet = workbook.Sheets[sheetName];
-      const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-      const allRows = json.slice(1);
-
-      const tempIncomplete = [];
-      const tempComplete = [];
-
-      allRows.forEach((row, index) => {
-        const [nis, name, email] = row;
-        const rowData = { key: `row-${index}`, nis, name, email };
-        if (!nis || !name || !email) {
-          tempIncomplete.push({ ...rowData, issue: "Kolom tidak lengkap" });
-        } else {
-          tempComplete.push(rowData);
-        }
-      });
-
-      const seenNis = new Map();
-      const seenEmail = new Map();
-      const tempDuplicates = [];
-      const tempUniques = [];
-
-      tempComplete.forEach((row) => {
-        let issues = [];
-        if (seenNis.has(row.nis)) {
-          issues.push("NIS duplikat");
-          const originalRow = seenNis.get(row.nis);
-          if (originalRow && !originalRow.issue.includes("NIS duplikat")) {
-            originalRow.issue.push("NIS duplikat");
-          }
-        } else {
-          seenNis.set(row.nis, row);
-        }
-
-        if (seenEmail.has(row.email)) {
-          issues.push("Email duplikat");
-          const originalRow = seenEmail.get(row.email);
-          if (originalRow && !originalRow.issue.includes("Email duplikat")) {
-            originalRow.issue.push("Email duplikat");
-          }
-        } else {
-          seenEmail.set(row.email, row);
-        }
-
-        row.issue = issues;
-      });
-
-      tempComplete.forEach((row) => {
-        if (row.issue.length > 0) {
-          row.issue = row.issue.join(", ");
-          tempDuplicates.push(row);
-        } else {
-          delete row.issue;
-          tempUniques.push(row);
-        }
-      });
-
-      setIncompleteRows(tempIncomplete);
-      setDuplicateRows(tempDuplicates);
-      setValidRows(tempUniques);
-    };
-    reader.readAsArrayBuffer(file);
-    return false;
-  };
-
-  const handleSubmit = () => {
-    if (validRows.length === 0) {
-      message.error("Tidak ada data valid untuk diunggah.");
-      return;
-    }
-    const dataToSubmit = {
-      bulk: validRows.map((row) => [row.nis, row.name, row.email]),
-    };
-    uploadParents(dataToSubmit);
-  };
-
+  // Efek untuk menangani feedback setelah upload
   useEffect(() => {
     if (isSuccess) {
-      message.success(data?.message || "Data orang tua berhasil diunggah");
-      resetState();
-      onClose();
+      message.success(data?.message || "Data berhasil diunggah.");
+      reset();
+      handleClose();
     }
     if (error) {
-      message.error(error?.data?.message || "Terjadi kesalahan");
+      message.error(
+        error?.data?.message || "Terjadi kesalahan saat mengunggah."
+      );
+      reset();
     }
-  }, [isSuccess, error, data, onClose]);
-
-  useEffect(() => {
-    if (!open) {
-      resetState();
-    }
-  }, [open]);
+  }, [isSuccess, error, data, reset]);
 
   return (
     <Modal
-      title="Unggah Data Orang Tua"
+      title='Upload Data Orang Tua'
       open={open}
-      onCancel={onClose}
-      onOk={handleSubmit}
-      confirmLoading={isLoading}
-      okText={`Simpan (${validRows.length}) Data Valid`}
-      cancelText="Tutup"
+      onCancel={handleClose}
+      footer={[
+        <Button key='back' onClick={handleClose}>
+          Tutup
+        </Button>,
+        <Button
+          key='submit'
+          type='primary'
+          loading={isLoading}
+          onClick={handleSubmit}
+          disabled={validRows.length === 0 || isLoading}
+        >
+          {isLoading
+            ? "Mengunggah..."
+            : `Upload ${validRows.length} Data Valid`}
+        </Button>,
+      ]}
       width={800}
-      okButtonProps={{ disabled: !file || validRows.length === 0 }}
-      destroyOnHidden
+      destroyOnClose
     >
-      <Space direction="vertical" style={{ width: "100%" }}>
-        {!file ? (
-          <>
-            <Alert
-              message="Informasi Penting"
-              description={
-                <div>
-                  Sistem akan memvalidasi dan memisahkan data. Hanya data unik
-                  dengan kolom lengkap yang akan disimpan. Unduh{" "}
-                  <a onClick={handleDownload} href="#">
-                    template di sini
-                  </a>
-                  .
-                </div>
-              }
-              type="info"
-              showIcon
-            />
-            <Dragger
-              name="file"
-              multiple={false}
-              beforeUpload={processFile}
-              onRemove={resetState}
-              accept=".xlsx"
-            >
-              <p className="ant-upload-drag-icon">
-                <InboxOutlined />
-              </p>
-              <p className="ant-upload-text">
-                Klik atau seret file ke area ini untuk mengunggah
-              </p>
-            </Dragger>
-          </>
-        ) : (
-          <Space direction="vertical" style={{ width: "100%" }}>
-            <Flex justify="space-between" align="center">
-              <Text>
-                Total{" "}
-                <Text strong>
-                  {validRows.length +
-                    duplicateRows.length +
-                    incompleteRows.length}
-                </Text>{" "}
-                baris data ditemukan.
-              </Text>
-              <Button danger type="text" onClick={resetState}>
-                Ganti File
-              </Button>
-            </Flex>
+      <Space direction='vertical' style={{ width: "100%" }}>
+        <Dragger {...draggerProps} key={previewKey}>
+          <p className='ant-upload-drag-icon'>
+            <InboxOutlined />
+          </p>
+          <p className='ant-upload-text'>
+            Klik atau seret file ke area ini untuk mengunggah
+          </p>
+          <p className='ant-upload-hint'>
+            Hanya mendukung file .xlsx, .xls, atau .csv. Pastikan kolom memiliki
+            judul: NIS, NAMA ORANG TUA, EMAIL.
+          </p>
+        </Dragger>
 
-            <Divider orientation="left" plain>
-              <Flex align="center" gap="small">
+        {file && (
+          <div style={{ width: "100%", marginTop: 16 }}>
+            <Divider orientation='left' plain>
+              <Flex align='center' gap='small'>
                 <CheckCircleOutlined style={{ color: "green" }} />
-                <Text>Data Valid & Unik</Text>
-                <Tag color="success">{validRows.length}</Tag>
+                <Text>Data Siap Diupload</Text>
+                <Tag color='success'>{validRows.length}</Tag>
               </Flex>
             </Divider>
             <Table
-              columns={previewColumns.filter((col) => col.key !== "issue")}
+              columns={previewColumns.filter((col) => col.key !== "issue")} // Sembunyikan kolom 'Keterangan'
               dataSource={validRows}
-              size="small"
-              pagination={{ pageSize: 3 }}
+              size='small'
+              pagination={{ pageSize: 3, hideOnSinglePage: true }}
+              scroll={{ x: true }}
             />
 
             {duplicateRows.length > 0 && (
               <>
-                <Divider orientation="left" plain>
-                  <Flex align="center" gap="small">
+                <Divider orientation='left' plain>
+                  <Flex align='center' gap='small'>
                     <ExclamationCircleOutlined style={{ color: "orange" }} />
                     <Text>Data Duplikat (Dilewati)</Text>
-                    <Tag color="warning">{duplicateRows.length}</Tag>
+                    <Tag color='warning'>{duplicateRows.length}</Tag>
                   </Flex>
                 </Divider>
                 <Table
                   columns={previewColumns}
                   dataSource={duplicateRows}
-                  size="small"
-                  pagination={{ pageSize: 3 }}
+                  size='small'
+                  pagination={{ pageSize: 3, hideOnSinglePage: true }}
+                  scroll={{ x: true }}
                 />
               </>
             )}
 
             {incompleteRows.length > 0 && (
               <>
-                <Divider orientation="left" plain>
-                  <Flex align="center" gap="small">
+                <Divider orientation='left' plain>
+                  <Flex align='center' gap='small'>
                     <CloseCircleOutlined style={{ color: "red" }} />
                     <Text>Data Tidak Lengkap (Dilewati)</Text>
-                    <Tag color="error">{incompleteRows.length}</Tag>
+                    <Tag color='error'>{incompleteRows.length}</Tag>
                   </Flex>
                 </Divider>
                 <Table
                   columns={previewColumns}
                   dataSource={incompleteRows}
-                  size="small"
-                  pagination={{ pageSize: 3 }}
+                  size='small'
+                  pagination={{ pageSize: 3, hideOnSinglePage: true }}
+                  scroll={{ x: true }}
                 />
               </>
             )}
-          </Space>
+          </div>
         )}
       </Space>
     </Modal>

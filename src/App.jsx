@@ -38,6 +38,10 @@ const LmsControl = lazy(() => import("./module/lms/control/LmsControl"));
 // Database
 const Database = lazy(() => import("./module/database/Database"));
 
+// Tahfiz
+const TahfizDash = lazy(() => import("./module/tahfiz/dashboard/TahfizDash"));
+const TahfizQuran = lazy(() => import("./module/tahfiz/quran/TahfizQuran"));
+
 const App = () => {
   const isSignin = localStorage.getItem("isSignin");
 
@@ -86,6 +90,11 @@ const App = () => {
 
             {/* Database */}
             <Route path='/database' element={<Database />} />
+
+            {/* Tahfiz */}
+            <Route path='/tahfiz-dashboard' element={<TahfizDash />} />
+
+            <Route path='/tahfiz-alquran' element={<TahfizQuran />} />
           </Routes>
         </Suspense>
       </BrowserRouter>
