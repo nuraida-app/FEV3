@@ -147,7 +147,7 @@ const TableData = ({ onEdit }) => {
       isLoading={isLoading || delLoading}
       columns={columns}
       source={data?.students}
-      rowKey="id"
+      rowKey='id'
       page={page}
       limit={limit}
       totalData={data?.totalData}
