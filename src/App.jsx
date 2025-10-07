@@ -41,6 +41,12 @@ const Database = lazy(() => import("./module/database/Database"));
 // Tahfiz
 const TahfizDash = lazy(() => import("./module/tahfiz/dashboard/TahfizDash"));
 const TahfizQuran = lazy(() => import("./module/tahfiz/quran/TahfizQuran"));
+const TahfizScoring = lazy(() =>
+  import("./module/tahfiz/Scoring/TahfizScoring")
+);
+const TahfizMemo = lazy(() =>
+  import("./module/tahfiz/Memorization/TahfizMemo")
+);
 
 const App = () => {
   const isSignin = localStorage.getItem("isSignin");
@@ -56,45 +62,49 @@ const App = () => {
       <BrowserRouter>
         <Suspense fallback={<LoadingScreen />}>
           <Routes>
-            <Route path='/' element={<Login />} />
+            <Route path="/" element={<Login />} />
 
             {/* Center */}
-            <Route path='/center-dashboard' element={<CenterDash />} />
+            <Route path="/center-dashboard" element={<CenterDash />} />
 
-            <Route path='/center-admin' element={<CenterAdmin />} />
+            <Route path="/center-admin" element={<CenterAdmin />} />
 
-            <Route path='/center-satuan' element={<CenterHomebase />} />
+            <Route path="/center-satuan" element={<CenterHomebase />} />
 
-            <Route path='/center-market' element={<CenterAnalysis />} />
+            <Route path="/center-market" element={<CenterAnalysis />} />
 
             {/* Admin */}
-            <Route path='/admin-dashboard' element={<AdminDash />} />
+            <Route path="/admin-dashboard" element={<AdminDash />} />
 
-            <Route path='/admin-data-pokok' element={<AdminData />} />
+            <Route path="/admin-data-pokok" element={<AdminData />} />
 
-            <Route path='/admin-data-siswa' element={<AdminStudent />} />
+            <Route path="/admin-data-siswa" element={<AdminStudent />} />
 
-            <Route path='/admin-data-akademik' element={<AdminAcademic />} />
+            <Route path="/admin-data-akademik" element={<AdminAcademic />} />
 
             {/* Teacher */}
-            <Route path='/guru-dashboard' element={<TeacherDash />} />
+            <Route path="/guru-dashboard" element={<TeacherDash />} />
 
             {/* CBT */}
-            <Route path='/computer-based-test' element={<CbtControl />} />
+            <Route path="/computer-based-test" element={<CbtControl />} />
 
             {/* LMS */}
             <Route
-              path='/learning-management-system'
+              path="/learning-management-system"
               element={<LmsControl />}
             />
 
             {/* Database */}
-            <Route path='/database' element={<Database />} />
+            <Route path="/database" element={<Database />} />
 
             {/* Tahfiz */}
-            <Route path='/tahfiz-dashboard' element={<TahfizDash />} />
+            <Route path="/tahfiz-dashboard" element={<TahfizDash />} />
 
-            <Route path='/tahfiz-alquran' element={<TahfizQuran />} />
+            <Route path="/tahfiz-alquran" element={<TahfizQuran />} />
+
+            <Route path="/tahfiz-penilaian" element={<TahfizScoring />} />
+
+            <Route path="/tahfiz-hafalan" element={<TahfizMemo />} />
           </Routes>
         </Suspense>
       </BrowserRouter>

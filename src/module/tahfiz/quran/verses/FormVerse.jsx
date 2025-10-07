@@ -3,7 +3,6 @@ import { useAddSurahMutation } from "../../../../service/api/tahfiz/ApiQuran";
 import { useEffect } from "react";
 
 const FormVerse = ({ title, open, onClose, surah }) => {
-  console.log(surah);
   const [form] = Form.useForm();
 
   const [addSurah, { data, error, isLoading, isSuccess }] =
@@ -58,34 +57,34 @@ const FormVerse = ({ title, open, onClose, surah }) => {
       title={title}
       open={open}
       onCancel={onClose}
-      okText='Simpan'
-      cancelText='Tutup'
+      okText="Simpan"
+      cancelText="Tutup"
       onOk={() => form.submit()}
       confirmLoading={isLoading}
       loading={isLoading}
     >
-      <Form layout='vertical' form={form} onFinish={handleSubmit}>
+      <Form layout="vertical" form={form} onFinish={handleSubmit}>
         <Form.Item
-          name='name'
-          label='Nama Surah'
+          name="name"
+          label="Nama Surah"
           rules={[{ required: true, message: "Nama Surah harus diisi" }]}
         >
-          <Input placeholder='Nama Surah' />
+          <Input placeholder="Nama Surah" />
         </Form.Item>
 
         <Form.Item
-          name='ayat'
-          label='Jumlah Ayat'
+          name="ayat"
+          label="Jumlah Ayat"
           rules={[{ required: true, message: "Jumlah Ayat harus diisi" }]}
         >
-          <Input placeholder='Jumlah Ayat' />
+          <Input placeholder="Jumlah Ayat" />
         </Form.Item>
         <Form.Item
-          name='lines'
-          label='Jumlah Baris'
+          name="lines"
+          label="Jumlah Baris"
           rules={[{ required: true, message: "Jumlah Baris harus diisi" }]}
         >
-          <Input placeholder='Jumlah Baris' />
+          <Input placeholder="Jumlah Baris" />
         </Form.Item>
       </Form>
     </Modal>

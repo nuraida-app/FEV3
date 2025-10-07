@@ -43,6 +43,7 @@ const Verses = () => {
   useEffect(() => {
     const handler = setTimeout(() => {
       setSearchDebounce(search);
+      setPage(1);
     }, 500);
 
     return () => {
@@ -85,17 +86,17 @@ const Verses = () => {
       title: "Aksi",
       key: "action",
       render: (text, record) => (
-        <Space size='middle'>
-          <Button type='primary' onClick={() => handleEdit(record)}>
+        <Space size="middle">
+          <Button type="primary" onClick={() => handleEdit(record)}>
             Edit
           </Button>
           <Popconfirm
-            title='Apakah Anda yakin ingin menghapus surah ini?'
+            title="Apakah Anda yakin ingin menghapus surah ini?"
             onConfirm={() => handleDelete(record.id)}
-            okText='Ya'
-            cancelText='Tidak'
+            okText="Ya"
+            cancelText="Tidak"
           >
-            <Button type='primary' danger>
+            <Button type="primary" danger>
               Delete
             </Button>
           </Popconfirm>
@@ -105,10 +106,10 @@ const Verses = () => {
   ];
 
   return (
-    <Flex vertical gap='middle'>
-      <Flex justify='space-between' align='center'>
+    <Flex vertical gap="middle">
+      <Flex justify="space-between" align="center">
         <Input.Search
-          placeholder='Cari Surah ...'
+          placeholder="Cari Surah ..."
           allowClear
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -127,7 +128,7 @@ const Verses = () => {
         columns={columns}
         dataSource={data?.result}
         loading={isLoading || delLoading}
-        rowKey='id'
+        rowKey="id"
         pagination={{
           current: page,
           pageSize: limit,
