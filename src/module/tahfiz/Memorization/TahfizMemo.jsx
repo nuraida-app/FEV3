@@ -4,9 +4,10 @@ import Memo from "./memo/Memo";
 import Report from "./report/Report";
 import { Tabs } from "antd";
 import FormMemo from "./memo/FormMemo";
+import History from "./history/History";
 
 const TahfizMemo = () => {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const view = searchParams.get("view");
   const userid = searchParams.get("studentid");
   const name = searchParams.get("name");
@@ -16,17 +17,29 @@ const TahfizMemo = () => {
     { label: "Laporan", key: "2", children: <Report /> },
   ];
 
+  const handleBack = () => {
+    setSearchParams({});
+  };
+
   if (view === "form") {
     return (
       <MainLayout title={"Hafalan Tahfiz"} levels={["tahfiz"]}>
-        <FormMemo name={name} userid={userid} />
+        <FormMemo name={name} userid={userid} onBack={handleBack} />
+      </MainLayout>
+    );
+  }
+
+  if (view === "detail") {
+    return (
+      <MainLayout title={"Hafalan Tahfiz"} levels={["tahfiz"]}>
+        <History name={name} userid={userid} onBack={handleBack} />
       </MainLayout>
     );
   }
 
   return (
     <MainLayout title={"Hafalan Tahfiz"} levels={["tahfiz"]}>
-      <Tabs defaultActiveKey='1' centered items={items} />
+      <Tabs defaultActiveKey="1" centered items={items} />
     </MainLayout>
   );
 };

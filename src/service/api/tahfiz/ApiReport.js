@@ -3,7 +3,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 export const ApiReport = createApi({
   reducerPath: "ApiReport",
   baseQuery: fetchBaseQuery({ baseUrl: `/api/report`, credentials: "include" }),
-  tagTypes: ["report"],
+  tagTypes: ["reports"],
   endpoints: (builder) => ({
     getReport: builder.query({
       query: ({ page, limit, search, type }) => ({
@@ -50,6 +50,14 @@ export const ApiReport = createApi({
       }),
       providesTags: ["reports"],
     }),
+    getRecordMemo: builder.query({
+      query: ({ page, limit, search, type }) => ({
+        url: "/get-record-memo",
+        method: "GET",
+        params: { page, limit, search, type },
+      }),
+      providesTags: ["reports"],
+    }),
   }),
 });
 
@@ -60,4 +68,5 @@ export const {
   useGetAchievementQuery,
   useGetReportDashboardQuery,
   useGetStudentReportQuery,
+  useGetRecordMemoQuery,
 } = ApiReport;

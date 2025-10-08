@@ -106,9 +106,9 @@ const Memo = () => {
       dataIndex: "name",
       key: "name",
       render: (text, record) => (
-        <Flex vertical align='start'>
+        <Flex vertical align="start">
           <Typography.Text strong>{text}</Typography.Text>
-          <Tag color='blue'>
+          <Tag color="blue">
             Tingkat {record.grade} - Kelas {record.class}
           </Tag>
         </Flex>
@@ -147,7 +147,7 @@ const Memo = () => {
         <Col xs={24} md={12} lg={6}>
           <Input.Search
             style={{ minWidth: 100 }}
-            placeholder='Cari Siswa ...'
+            placeholder="Cari Siswa ..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             allowClear
@@ -156,7 +156,7 @@ const Memo = () => {
         <Col xs={24} md={12} lg={6}>
           <Select
             style={{ width: "100%" }}
-            placeholder='Pilih Satuan'
+            placeholder="Pilih Satuan"
             options={homebaseOpts}
             virtual={false}
             allowClear
@@ -166,7 +166,7 @@ const Memo = () => {
         <Col xs={24} md={12} lg={6}>
           <Select
             style={{ width: "100%" }}
-            placeholder='Pilih Tingkat'
+            placeholder="Pilih Tingkat"
             options={gradeOpts}
             virtual={false}
             allowClear
@@ -176,7 +176,7 @@ const Memo = () => {
         <Col xs={24} md={12} lg={6}>
           <Select
             style={{ width: "100%" }}
-            placeholder='Pilih Kelas'
+            placeholder="Pilih Kelas"
             options={classOpts}
             virtual={false}
             allowClear
@@ -186,7 +186,7 @@ const Memo = () => {
       </Row>
 
       <Table
-        rowKey='userid'
+        rowKey="userid"
         columns={columns}
         dataSource={raw?.students}
         pagination={{

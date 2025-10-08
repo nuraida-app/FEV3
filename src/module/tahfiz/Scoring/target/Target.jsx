@@ -114,10 +114,7 @@ const Target = () => {
 
   return (
     <Flex vertical gap="large">
-      <Flex justify="space-between" align="center">
-        <Title level={3} style={{ margin: 0 }}>
-          Target Hafalan Santri
-        </Title>
+      <Flex justify="end" align="center">
         <Button
           type="primary"
           icon={<PlusOutlined />}

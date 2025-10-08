@@ -15,7 +15,12 @@ import {
   Space,
   Flex,
 } from "antd";
-import { SaveOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
+import {
+  SaveOutlined,
+  DeleteOutlined,
+  PlusOutlined,
+  ArrowLeftOutlined,
+} from "@ant-design/icons";
 
 // Import RTK Query hooks from your service API
 import { useGetTypesQuery } from "../../../../service/api/tahfiz/ApiMetric";
@@ -32,7 +37,7 @@ const page = "";
 const limit = "";
 const search = "";
 
-const FormMemo = ({ name, userid }) => {
+const FormMemo = ({ name, userid, onBack }) => {
   // 1. HOOKS AND PARAMS
   const { periodeId } = useParams();
   const formattedName = name ? name.replace(/-/g, " ") : "Student";
@@ -180,12 +185,22 @@ const FormMemo = ({ name, userid }) => {
       return;
     }
 
+    // --- FIX STARTS HERE ---
+
+    // Pastikan semua nilai poin (untuk kategori dan indikator) yang dikirim adalah angka.
+    // Jika ada input skor yang kosong (null/undefined), ubah menjadi 0.
     const categoriesPayload = Object.values(scores).map((cat) => ({
       category_id: cat.category_id,
-      poin: cat.poin || 0,
-      indicators: Object.values(cat.indicators),
+      poin: cat.poin ?? 0, // Mengubah null/undefined menjadi 0
+      indicators: Object.values(cat.indicators).map((indicator) => ({
+        ...indicator,
+        poin: indicator.poin ?? 0, // Mengubah null/undefined menjadi 0 untuk setiap indikator
+      })),
     }));
 
+    // --- FIX ENDS HERE ---
+
+    // Validasi tambahan untuk memastikan skor sudah diisi
     if (categoriesPayload.length === 0) {
       message.error("Please fill in the assessment scores.");
       return;
@@ -194,8 +209,16 @@ const FormMemo = ({ name, userid }) => {
     const submissionData = {
       userid: parseInt(userid),
       periodeId: parseInt(periodeId),
-      juzId: memorizedSurahs[0].juzId, // Assuming single Juz context for submission, can be adjusted
-      surahs: memorizedSurahs.map(({ key, ...rest }) => rest), // Remove React key from payload
+      surahs: memorizedSurahs.map(
+        ({ fromSurah, fromAyat, toAyat, fromLine, toLine, juzId }) => ({
+          fromSurah,
+          fromAyat,
+          toAyat,
+          fromLine,
+          toLine,
+          juzId,
+        })
+      ),
       examiner: parseInt(examinerId),
       poin: {
         type_id: parseInt(typeId),
@@ -258,7 +281,7 @@ const FormMemo = ({ name, userid }) => {
       align: "center",
       render: (_, record) => (
         <Button
-          type='primary'
+          type="primary"
           danger
           icon={<DeleteOutlined />}
           onClick={() => handleDeleteSurah(record.key)}
@@ -274,7 +297,7 @@ const FormMemo = ({ name, userid }) => {
       key: "indicator",
       width: "60%",
       render: (_, record) => (
-        <Space direction='vertical' style={{ width: "100%" }}>
+        <Space direction="vertical" style={{ width: "100%" }}>
           {record.indicators &&
           record.indicators.filter((indi) => indi !== null).length > 0 ? (
             record.indicators
@@ -282,8 +305,8 @@ const FormMemo = ({ name, userid }) => {
               .map((indicator) => (
                 <Row
                   key={indicator.id}
-                  align='middle'
-                  justify='space-between'
+                  align="middle"
+                  justify="space-between"
                   style={{ width: "100%" }}
                 >
                   <Col>
@@ -291,7 +314,7 @@ const FormMemo = ({ name, userid }) => {
                   </Col>
                   <Col>
                     <InputNumber
-                      placeholder='Score'
+                      placeholder="Score"
                       min={0}
                       max={100}
                       onChange={(value) =>
@@ -308,7 +331,7 @@ const FormMemo = ({ name, userid }) => {
                 </Row>
               ))
           ) : (
-            <Text type='secondary'>No indicators for this category.</Text>
+            <Text type="secondary">No indicators for this category.</Text>
           )}
         </Space>
       ),
@@ -320,7 +343,7 @@ const FormMemo = ({ name, userid }) => {
       align: "center",
       render: (_, record) => (
         <InputNumber
-          placeholder='Total'
+          placeholder="Total"
           min={0}
           max={100}
           onChange={(value) =>
@@ -335,21 +358,26 @@ const FormMemo = ({ name, userid }) => {
   // 8. RENDER
   return (
     <Flex vertical gap={"middle"}>
-      <Title level={5}>Penilaian Tahfiz: {formattedName}</Title>
+      <Space>
+        <Button shape="circle" icon={<ArrowLeftOutlined />} onClick={onBack} />
+        <Title style={{ margin: 0 }} level={5}>
+          Penilaian Tahfiz: {formattedName}
+        </Title>
+      </Space>
       <Row gutter={[24, 24]}>
         {/* LEFT COLUMN: SELECTIONS */}
         <Col xs={24} lg={12}>
-          <Space direction='vertical' size='large' style={{ width: "100%" }}>
-            <Card title='Pilihan Hafalan'>
-              <Space direction='vertical' style={{ width: "100%" }}>
+          <Space direction="vertical" size="large" style={{ width: "100%" }}>
+            <Card title="Pilihan Hafalan">
+              <Space direction="vertical" style={{ width: "100%" }}>
                 <Text strong>Tambah Juz (Bulk)</Text>
                 <Row gutter={8}>
-                  <Col flex='auto'>
+                  <Col flex="auto">
                     <Select
-                      mode='multiple'
+                      mode="multiple"
                       allowClear
                       style={{ width: "100%" }}
-                      placeholder='Pilih 1 atau lebih Juz'
+                      placeholder="Pilih 1 atau lebih Juz"
                       loading={isLoadingJuz}
                       value={selectedJuzForBulk}
                       onChange={setSelectedJuzForBulk}
@@ -364,7 +392,7 @@ const FormMemo = ({ name, userid }) => {
                   </Col>
                   <Col>
                     <Button
-                      type='primary'
+                      type="primary"
                       icon={<PlusOutlined />}
                       onClick={handleAddSurahBulk}
                     />
@@ -379,7 +407,7 @@ const FormMemo = ({ name, userid }) => {
                   <Col xs={24} sm={12}>
                     <Select
                       style={{ width: "100%" }}
-                      placeholder='1. Pilih Juz'
+                      placeholder="1. Pilih Juz"
                       loading={isLoadingJuz}
                       onChange={handleJuzForSurahChange}
                       virtual={false}
@@ -395,7 +423,7 @@ const FormMemo = ({ name, userid }) => {
                   <Col xs={24} sm={12}>
                     <Select
                       style={{ width: "100%" }}
-                      placeholder='2. Pilih Surah'
+                      placeholder="2. Pilih Surah"
                       disabled={!selectedJuzForSurah}
                       value={selectedSurah}
                       onChange={setSelectedSurah}
@@ -414,7 +442,7 @@ const FormMemo = ({ name, userid }) => {
                   <Col xs={24} sm={12}>
                     <Select
                       style={{ width: "100%" }}
-                      placeholder='3. Dari Ayat'
+                      placeholder="3. Dari Ayat"
                       disabled={!selectedSurahData}
                       value={fromAyat}
                       onChange={setFromAyat}
@@ -440,7 +468,7 @@ const FormMemo = ({ name, userid }) => {
                   <Col xs={24} sm={12}>
                     <Select
                       style={{ width: "100%" }}
-                      placeholder='4. Sampai Ayat'
+                      placeholder="4. Sampai Ayat"
                       disabled={!fromAyat}
                       value={toAyat}
                       onChange={setToAyat}
@@ -463,7 +491,7 @@ const FormMemo = ({ name, userid }) => {
                   <Col xs={24} sm={12}>
                     <Select
                       style={{ width: "100%" }}
-                      placeholder='5. Dari Baris'
+                      placeholder="5. Dari Baris"
                       disabled={!toAyat}
                       value={fromLine}
                       onChange={setFromLine}
@@ -484,7 +512,7 @@ const FormMemo = ({ name, userid }) => {
                   <Col xs={24} sm={12}>
                     <Select
                       style={{ width: "100%" }}
-                      placeholder='6. Sampai Baris'
+                      placeholder="6. Sampai Baris"
                       disabled={!fromLine}
                       value={toLine}
                       onChange={setToLine}
@@ -504,7 +532,7 @@ const FormMemo = ({ name, userid }) => {
                   </Col>
                 </Row>
                 <Button
-                  type='primary'
+                  type="primary"
                   onClick={handleAddSingleSurah}
                   disabled={!toLine}
                   block
@@ -514,12 +542,12 @@ const FormMemo = ({ name, userid }) => {
               </Space>
             </Card>
 
-            <Card title='Detail Penilaian'>
+            <Card title="Detail Penilaian">
               {/* PERBAIKAN 2: Membuat layout input menjadi responsif */}
               <Row gutter={[16, 16]}>
                 <Col xs={24} md={12}>
                   <Select
-                    placeholder='Pilih Jenis Penilaian'
+                    placeholder="Pilih Jenis Penilaian"
                     style={{ width: "100%" }}
                     loading={isLoadingTypes}
                     value={typeId}
@@ -535,7 +563,7 @@ const FormMemo = ({ name, userid }) => {
                 </Col>
                 <Col xs={24} md={12}>
                   <Select
-                    placeholder='Pilih Penguji'
+                    placeholder="Pilih Penguji"
                     style={{ width: "100%" }}
                     loading={isLoadingExaminers}
                     value={examinerId}
@@ -556,15 +584,15 @@ const FormMemo = ({ name, userid }) => {
 
         {/* RIGHT COLUMN: SCORING */}
         <Col xs={24} lg={12}>
-          <Card title='Indikator Penilaian'>
+          <Card title="Indikator Penilaian">
             <Table
               bordered
-              size='small'
+              size="small"
               pagination={false}
               dataSource={categoriesData}
               columns={categoryColumns}
               loading={isLoadingCategories}
-              rowKey='id'
+              rowKey="id"
               // PERBAIKAN 3: Membuat tabel scrollable di layar kecil
               scroll={{ x: "max-content" }}
             />
@@ -585,10 +613,10 @@ const FormMemo = ({ name, userid }) => {
         scroll={{ x: "max-content" }}
       />
 
-      <Row justify='end' style={{ marginTop: "24px" }}>
+      <Row justify="end" style={{ marginTop: "24px" }}>
         <Col>
           <Button
-            type='primary'
+            type="primary"
             icon={<SaveOutlined />}
             loading={isSaving}
             disabled={memorizedSurahs.length === 0}
