@@ -28,10 +28,12 @@ import {
   useGetHomebaseQuery,
 } from "../../service/api/database/ApiDatabase";
 import dayjs from "dayjs";
+import { useSelector } from "react-redux";
 
 const { Title } = Typography;
 
 const PersonalData = ({ studentData, onRefetch, userid }) => {
+  const { user } = useSelector((state) => state.auth);
   // Jika tidak ada studentData.userid, anggap ini form baru dan langsung masuk mode edit
   const [isEditing, setIsEditing] = useState(!studentData?.userid);
   const [form] = Form.useForm();
@@ -43,12 +45,16 @@ const PersonalData = ({ studentData, onRefetch, userid }) => {
     studentData?.districtid
   );
 
-  const { data: periodeData, isLoading: isPeriodeLoading } =
-    useGetPeriodeQuery();
+  const { data: periodeData, isLoading: isPeriodeLoading } = useGetPeriodeQuery(
+    user?.homebase_id
+  );
+
   const { data: homebaseData, isLoading: isHomebaseLoading } =
     useGetHomebaseQuery();
+
   const { data: provinces, isLoading: isProvinceLoading } =
     useGetProvinceQuery();
+
   const { data: cities, isLoading: isCityLoading } = useGetCityQuery(
     selectedProvince,
     { skip: !selectedProvince }
@@ -419,7 +425,7 @@ const PersonalData = ({ studentData, onRefetch, userid }) => {
             </Space>
           ) : (
             <Button icon={<EditOutlined />} type="primary" onClick={handleEdit}>
-              Edit Biodata
+              Edit
             </Button>
           )
         }

@@ -6,8 +6,9 @@ export const ApiDatabase = createApi({
   tagTypes: ["Database"],
   endpoints: (builder) => ({
     getPeriode: builder.query({
-      query: () => ({
+      query: (homebaseid) => ({
         url: "/get-periode",
+        params: { homebaseid },
       }),
     }),
     getHomebase: builder.query({

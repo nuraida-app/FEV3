@@ -1,41 +1,41 @@
-import { Card, Flex, Typography } from "antd";
-import Add from "../../../../../components/buttons/Add";
-import { useState } from "react";
+import { Card } from "antd";
+import Add from "../../../../components/buttons/Add";
 import TableData from "./TableData";
-import FormBranch from "./FormBranch";
+import { useState } from "react";
+import FormCat from "./FormCat";
 
-const Branch = () => {
+const Category = () => {
   const [open, setOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
-  const [branchData, setBranch] = useState({});
+  const [catdata, setCatdata] = useState([]);
 
   const handleClose = () => {
-    setBranch({});
+    setCatdata({});
     setOpen(false);
     setIsEdit(false);
   };
 
   const handleEdit = (record) => {
-    setBranch(record);
+    setCatdata(record);
     setIsEdit(true);
     setOpen(true);
   };
   return (
     <Card
       hoverable
-      title="Managemen Rumpun"
+      title="Managemen Kategori"
       extra={<Add onClick={() => setOpen(true)} />}
     >
       <TableData onEdit={handleEdit} />
 
-      <FormBranch
-        title={isEdit ? "Edit Rumpun" : "Tambah Rumpun"}
+      <FormCat
+        title={isEdit ? "Edit Kategori" : "Simpan Kategori"}
         open={open}
         onClose={handleClose}
-        branch={branchData}
+        category={catdata}
       />
     </Card>
   );
 };
 
-export default Branch;
+export default Category;

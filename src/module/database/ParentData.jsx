@@ -219,7 +219,7 @@ const ParentData = ({ studentData, onRefetch, userid }) => {
   return (
     <Spin spinning={isUpdating}>
       <Card
-        title={<Title level={4}>Informasi Orang Tua</Title>}
+        title={<Title level={5}>Informasi Orang Tua</Title>}
         extra={
           isEditing ? (
             <Space>
@@ -240,7 +240,7 @@ const ParentData = ({ studentData, onRefetch, userid }) => {
             </Space>
           ) : (
             <Button icon={<EditOutlined />} type="primary" onClick={handleEdit}>
-              Edit Data Orang Tua
+              Edit
             </Button>
           )
         }

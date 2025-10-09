@@ -1,11 +1,10 @@
 import { Modal, message, Form, Input, Upload, Button, Select } from "antd";
 import {
   useAddSubjectMutation,
-  useGetBranchesQuery,
   useGetCategoriesQuery,
 } from "../../../../service/api/main/ApiSubject";
-import { useEffect, useState } from "react";
-// PERBAIKAN 2: Impor ikon yang dibutuhkan
+// PERBAIKAN 1: Impor hook yang dibutuhkan dari React
+import { useEffect, useState, useMemo } from "react";
 import { UploadOutlined, InboxOutlined } from "@ant-design/icons";
 
 const page = "";
@@ -16,6 +15,8 @@ const FormSubject = ({ open, onClose, title, subject }) => {
   const [form] = Form.useForm();
   const [file, setFile] = useState(null);
   const [imageUrl, setImageUrl] = useState(null);
+  // PERBAIKAN 2: State untuk menyimpan ID kategori yang dipilih
+  const [selectedCategoryId, setSelectedCategoryId] = useState(null);
 
   const [addSubject, { data, isLoading, isSuccess, error, reset }] =
     useAddSubjectMutation();
@@ -25,32 +26,50 @@ const FormSubject = ({ open, onClose, title, subject }) => {
     limit,
     search,
   });
-  const { data: braches, isLoading: branchesLoading } = useGetBranchesQuery({
-    page,
-    limit,
-    search,
-  });
 
+  // --- PERBAIKAN 3: Logika Pengambilan Data Rumpun (Branch) ---
+  // Hapus useGetBranchesQuery yang tidak diperlukan
+
+  // Opsi untuk dropdown Kategori
   const catsOpts =
     categories?.map((item) => ({
       value: item.id,
       label: item.name,
     })) || [];
-  const branchesOpts =
-    braches?.map((item) => ({
-      value: item.id,
-      label: item.name,
-    })) || [];
+
+  // Opsi untuk dropdown Rumpun, dihitung ulang saat kategori atau data kategori berubah
+  const branchesOpts = useMemo(() => {
+    if (!selectedCategoryId || !categories) {
+      return []; // Kembalikan array kosong jika tidak ada kategori dipilih
+    }
+    // Cari kategori yang cocok dengan ID yang dipilih
+    const selectedCategory = categories.find(
+      (cat) => cat.id === selectedCategoryId
+    );
+    // Jika kategori ditemukan dan memiliki branches, map menjadi opsi dropdown
+    if (selectedCategory && selectedCategory.branches) {
+      return selectedCategory.branches.map((branch) => ({
+        value: branch.id,
+        label: branch.name,
+      }));
+    }
+    return []; // Kembalikan array kosong jika tidak ditemukan
+  }, [selectedCategoryId, categories]);
+  // -----------------------------------------------------------------
 
   useEffect(() => {
     if (open) {
+      // Reset semua state saat modal dibuka
       form.resetFields();
-      setFile(null); // Selalu reset file state
+      setFile(null);
+      setImageUrl(null);
+      setSelectedCategoryId(null);
 
       if (subject) {
+        // Jika mode edit, set state dan nilai form
+        setSelectedCategoryId(subject.category_id); // Set ID kategori terpilih
         form.setFieldsValue({
           name: subject.name,
-          // PERBAIKAN: Set value untuk Select dengan format { value, label }
           categoryid: {
             value: subject.category_id,
             label: subject.category_name,
@@ -58,15 +77,9 @@ const FormSubject = ({ open, onClose, title, subject }) => {
           branchid: { value: subject.branch_id, label: subject.branch_name },
         });
         setImageUrl(subject.cover || null);
-      } else {
-        form.resetFields();
-        setImageUrl(null);
       }
     }
   }, [subject, form, open]);
-
-  // Asumsi `subject` object memiliki `category_name` dan `branch_name`
-  // Jika tidak, Anda perlu fetch data detailnya atau sesuaikan.
 
   useEffect(() => {
     if (isSuccess) {
@@ -76,32 +89,37 @@ const FormSubject = ({ open, onClose, title, subject }) => {
     }
     if (error) {
       message.error(error?.data?.message || "Terjadi kesalahan");
-      reset(); // Reset state error agar tidak muncul lagi
+      reset();
     }
   }, [isSuccess, error, data, onClose, reset]);
 
-  // PERBAIKAN 1: Logika handleSubmit diperbaiki
   const handleSubmit = (values) => {
     const formData = new FormData();
     formData.append("name", values.name);
-
-    // Pastikan nilai ada sebelum di-append
     if (values.categoryid) {
       formData.append("categoryid", values.categoryid.value);
     }
     if (values.branchid) {
       formData.append("branchid", values.branchid.value);
     }
-
     if (file) {
       formData.append("cover", file);
     }
-
     if (subject) {
       formData.append("id", subject.id);
     }
-
     addSubject(formData);
+  };
+
+  // PERBAIKAN 4: Fungsi untuk menangani perubahan pada dropdown Kategori
+  const handleCategoryChange = (selectedOption) => {
+    if (selectedOption) {
+      setSelectedCategoryId(selectedOption.value);
+    } else {
+      setSelectedCategoryId(null);
+    }
+    // Reset pilihan Rumpun setiap kali Kategori berubah
+    form.setFieldsValue({ branchid: null });
   };
 
   const uploadProps = {
@@ -113,7 +131,7 @@ const FormSubject = ({ open, onClose, title, subject }) => {
         setFile(file);
         setImageUrl(URL.createObjectURL(file));
       }
-      return false; // Selalu return false untuk mencegah upload otomatis
+      return false;
     },
     onRemove: () => {
       setFile(null);
@@ -131,7 +149,6 @@ const FormSubject = ({ open, onClose, title, subject }) => {
       okText="Simpan"
       cancelText="Tutup"
       confirmLoading={isLoading}
-      loading={isLoading}
       onOk={() => form.submit()}
     >
       <Form
@@ -155,6 +172,8 @@ const FormSubject = ({ open, onClose, title, subject }) => {
             filterOption={(input, option) =>
               option.label.toLowerCase().includes(input.toLowerCase())
             }
+            // Tambahkan onChange handler
+            onChange={handleCategoryChange}
             getPopupContainer={(triggerNode) => triggerNode.parentNode}
             virtual={false}
           />
@@ -164,8 +183,12 @@ const FormSubject = ({ open, onClose, title, subject }) => {
           <Select
             allowClear
             placeholder="Pilih Rumpun"
+            // Gunakan options yang sudah dinamis
             options={branchesOpts}
-            loading={branchesLoading}
+            // PERBAIKAN 5: Nonaktifkan jika belum memilih kategori
+            disabled={!selectedCategoryId}
+            // Loading mengikuti loading kategori
+            loading={catsLoading}
             labelInValue
             showSearch
             filterOption={(input, option) =>
@@ -186,7 +209,6 @@ const FormSubject = ({ open, onClose, title, subject }) => {
           <Input placeholder="Contoh: Matematika" />
         </Form.Item>
 
-        {/* PERBAIKAN 2: UI Upload yang lebih modern */}
         <Form.Item label="Cover Gambar">
           <Upload.Dragger {...uploadProps}>
             {imageUrl ? (
@@ -206,9 +228,6 @@ const FormSubject = ({ open, onClose, title, subject }) => {
                 </p>
                 <p className="ant-upload-text">
                   Klik atau seret file ke area ini
-                </p>
-                <p className="ant-upload-hint">
-                  Gunakan gambar yang menarik sebagai cover.
                 </p>
               </>
             )}

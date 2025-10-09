@@ -29,6 +29,18 @@ const TeacherDash = lazy(() =>
   import("./module/teacher/dashboard/TeacherDash")
 );
 
+// Parent
+const ParentDash = lazy(() => import("./module/parent/dashboard/ParentDash"));
+const ParentDatabase = lazy(() =>
+  import("./module/parent/database/ParentDatabase")
+);
+const ParentAcademic = lazy(() =>
+  import("./module/parent/report/academic/ParentAcademic")
+);
+const ParentTahfiz = lazy(() =>
+  import("./module/parent/report/tahfiz/ParentTahfiz")
+);
+
 // CBT
 const CbtControl = lazy(() => import("./module/cbt/control/CbtControl"));
 
@@ -84,6 +96,21 @@ const App = () => {
 
             {/* Teacher */}
             <Route path="/guru-dashboard" element={<TeacherDash />} />
+
+            {/* Parent */}
+            <Route path="/orangtua-dashboard" element={<ParentDash />} />
+
+            <Route
+              path="/orangtua-database-siswa"
+              element={<ParentDatabase />}
+            />
+
+            <Route
+              path="/orangtua-laporan-akademik"
+              element={<ParentAcademic />}
+            />
+
+            <Route path="/orangtua-laporan-tahfiz" element={<ParentTahfiz />} />
 
             {/* CBT */}
             <Route path="/computer-based-test" element={<CbtControl />} />

@@ -1,5 +1,6 @@
 import {
   ApartmentOutlined,
+  AreaChartOutlined,
   AuditOutlined,
   BranchesOutlined,
   DatabaseOutlined,
@@ -108,7 +109,21 @@ export const ParentMenus = [
     key: "/orangtua-dashboard",
     icon: <WindowsOutlined />,
   },
-  { label: "Profile", key: "/profile", icon: <UserOutlined /> },
+  {
+    label: "Data Siswa",
+    key: "/orangtua-database-siswa",
+    icon: <DatabaseOutlined />,
+  },
+  {
+    label: "Laporan Akademik",
+    key: "/orangtua-laporan-akademik",
+    icon: <AreaChartOutlined />,
+  },
+  {
+    label: "Laporan Tahfiz",
+    key: "/orangtua-laporan-tahfiz",
+    icon: <AuditOutlined />,
+  },
   { label: "Logout", key: "logout", icon: <LogoutOutlined />, danger: true },
 ];
 

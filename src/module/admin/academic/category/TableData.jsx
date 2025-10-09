@@ -2,10 +2,16 @@ import { useEffect, useState } from "react";
 import {
   useDeleteCategoryMutation,
   useGetCategoriesQuery,
-} from "../../../../../service/api/main/ApiSubject";
-import { Dropdown, Modal, message } from "antd";
-import { ExclamationCircleFilled } from "@ant-design/icons";
-import TableLayout from "../../../../../components/table/TableLayout";
+} from "../../../../service/api/main/ApiSubject";
+import { Dropdown, Modal, Tag, Tooltip, message } from "antd";
+import {
+  DeleteOutlined,
+  EditOutlined,
+  ExclamationCircleFilled,
+  FileAddOutlined,
+} from "@ant-design/icons";
+import TableLayout from "../../../../components/table/TableLayout";
+import FormBranch from "./FormBranch";
 
 const { confirm } = Modal;
 
@@ -13,6 +19,10 @@ const TableData = ({ onEdit }) => {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [search, setSearch] = useState("");
+  const [open, setOpen] = useState(false);
+  const [isEdit, setIsEdit] = useState(false);
+  const [category, setCategory] = useState("");
+  const [branch, setBranch] = useState("");
 
   const { data, isLoading } = useGetCategoriesQuery({ page, limit, search });
   const [
@@ -53,27 +63,41 @@ const TableData = ({ onEdit }) => {
     });
   };
 
+  const handleClose = () => {
+    setCategory("");
+    setOpen(false);
+    setIsEdit(false);
+  };
+
+  const handleEditBranch = (branch, category) => {
+    setBranch(branch);
+    setCategory(category);
+    setIsEdit(true);
+    setOpen(true);
+  };
+
   const handleSelect = (record, { key }) => {
     switch (key) {
+      case "add":
+        setCategory(record);
+        setOpen(true);
+        break;
       case "edit":
         handleEdit(record);
         break;
-
       case "delete":
         handleDelete(record.id);
         break;
-
       default:
         break;
     }
   };
 
-  //   Effects
+  //   Effects
   useEffect(() => {
     if (isSuccess) {
       message.success(delMessage.message);
     }
-
     if (error) {
       message.error(error.data.message);
     }
@@ -87,6 +111,27 @@ const TableData = ({ onEdit }) => {
     },
     { title: "Kategori", dataIndex: "name", key: "name" },
     {
+      title: "Rumpun",
+      dataIndex: "branches",
+      key: "branches",
+      // --- PERBAIKAN DI SINI ---
+      render: (branches, record) => (
+        // Gunakan Fragment <>...</> untuk mengelompokkan Tag
+        <>
+          {branches?.map((item) => (
+            // Tampilkan nama branch di dalam Tag
+            // Berikan 'key' unik untuk setiap item dalam map
+            <Tag color="blue" key={item.id}>
+              {item.name}{" "}
+              <Tooltip title={`Edit rumpun ${item.name}`}>
+                <EditOutlined onClick={() => handleEditBranch(item, record)} />
+              </Tooltip>
+            </Tag>
+          ))}
+        </>
+      ),
+    },
+    {
       title: "Aksi",
       key: "action",
       render: (record) => (
@@ -94,20 +139,22 @@ const TableData = ({ onEdit }) => {
           menu={{
             items: [
               {
-                key: "edit",
-                label: "Edit",
+                key: "add",
+                label: "Tambah Rumpun",
+                icon: <FileAddOutlined />,
               },
               {
-                key: "detail",
-                label: "Detail",
+                key: "edit",
+                label: "Edit",
+                icon: <EditOutlined />,
               },
               {
                 key: "delete",
                 label: "Hapus",
+                icon: <DeleteOutlined />,
                 danger: true,
               },
             ],
-
             onClick: ({ key }) => handleSelect(record, { key }),
           }}
         >
@@ -129,6 +176,18 @@ const TableData = ({ onEdit }) => {
         limit={limit}
         totalData={data?.totalData}
         onChange={handleTableChange}
+      />
+
+      <FormBranch
+        title={
+          isEdit
+            ? `Edit Rumpun ${branch.name} di kategori ${category.name}`
+            : `Tambah Rumpun di kategori ${category.name}`
+        }
+        open={open}
+        onClose={handleClose}
+        categoryid={category.id}
+        branch={branch}
       />
     </>
   );

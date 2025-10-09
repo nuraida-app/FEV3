@@ -14,9 +14,18 @@ export const ApiRecap = createApi({
         method: "GET",
         params: { classid, chapterid, month, search, page, limit },
       }),
-      providesTags: ["reports"],
+      providesTags: ["recap"],
+    }),
+    getMonthlyRecap: builder.query({
+      query: ({ studentId, month, periode }) => ({
+        url: "/monthly-recap",
+        method: "GET",
+        params: { studentId, month, periode },
+      }),
+      providesTags: (result, error, arg) =>
+        result ? [{ type: "recap", id: arg.studentId }] : ["recap"],
     }),
   }),
 });
 
-export const { useGetChapterRecapQuery } = ApiRecap;
+export const { useGetChapterRecapQuery, useGetMonthlyRecapQuery } = ApiRecap;

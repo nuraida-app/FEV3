@@ -82,7 +82,7 @@ export const ApiSubject = createApi({
         method: "POST",
         body,
       }),
-      invalidatesTags: ["branch"],
+      invalidatesTags: ["category"],
     }),
     deleteBranch: builder.mutation({
       query: (id) => ({

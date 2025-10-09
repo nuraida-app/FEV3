@@ -1,21 +1,21 @@
 import { Form, Input, Modal, Spin, message } from "antd";
-import Cancel from "../../../../../components/buttons/Cancel";
-import Save from "../../../../../components/buttons/Save";
-import { useSaveBranchMutation } from "../../../../../service/api/main/ApiSubject";
+import Cancel from "../../../../components/buttons/Cancel";
+import Save from "../../../../components/buttons/Save";
+import { useSaveCategoryMutation } from "../../../../service/api/main/ApiSubject";
 import { useEffect } from "react";
 
-const FormBranch = ({ open, onClose, branch, title }) => {
+const FormCat = ({ open, onClose, category, title }) => {
   const [form] = Form.useForm();
 
-  const [saveBranch, { isLoading, isSuccess, data, error, reset }] =
-    useSaveBranchMutation();
+  const [saveCategory, { isLoading, isSuccess, data, error, reset }] =
+    useSaveCategoryMutation();
 
   const handleSubmit = (values) => {
-    if (branch) {
-      const data = { ...values, id: branch.id };
-      saveBranch(data);
+    if (category) {
+      const data = { ...values, id: category.id };
+      saveCategory(data);
     } else {
-      saveBranch(values);
+      saveCategory(values);
     }
   };
 
@@ -28,13 +28,13 @@ const FormBranch = ({ open, onClose, branch, title }) => {
     if (open) {
       form.resetFields();
 
-      if (branch) {
-        form.setFieldsValue({ name: branch.name });
+      if (category) {
+        form.setFieldsValue({ name: category.name });
       } else {
         form.resetFields();
       }
     }
-  }, [open, branch, form]);
+  }, [open, category, form]);
 
   useEffect(() => {
     if (isSuccess) {
@@ -54,20 +54,20 @@ const FormBranch = ({ open, onClose, branch, title }) => {
       title={title}
       open={open}
       onCancel={handleClose}
-      okText='Simpan'
-      cancelText='Tutup'
+      okText="Simpan"
+      cancelText="Tutup"
       confirmLoading={isLoading}
       loading={isLoading}
       onOk={() => form.submit()}
     >
-      <Spin spinning={isLoading} tip='Memperoses data..'>
-        <Form form={form} layout='vertical' onFinish={handleSubmit}>
+      <Spin spinning={isLoading} tip="Memperoses data..">
+        <Form form={form} layout="vertical" onFinish={handleSubmit}>
           <Form.Item
-            name='name'
-            label='Nama Kategori'
+            name="name"
+            label="Nama Kategori"
             rules={[{ required: true, message: "Nama Wajib diisi" }]}
           >
-            <Input placeholder='Nama Kategori' />
+            <Input placeholder="Nama Kategori" />
           </Form.Item>
         </Form>
       </Spin>
@@ -75,4 +75,4 @@ const FormBranch = ({ open, onClose, branch, title }) => {
   );
 };
 
-export default FormBranch;
+export default FormCat;

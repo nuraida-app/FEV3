@@ -106,8 +106,8 @@ const MainLayout = ({ children, levels, title }) => {
       secondaryMenuItems = StudentMenus.slice(1);
       break;
     case "parent":
-      mainMenuItems = ParentMenus.slice(0, 1);
-      secondaryMenuItems = ParentMenus.slice(1);
+      mainMenuItems = ParentMenus.slice(0, 4);
+      secondaryMenuItems = ParentMenus.slice(4);
       break;
     case "tahfiz":
       mainMenuItems = TahfizMenus.slice(0, 4);

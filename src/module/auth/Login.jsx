@@ -33,7 +33,7 @@ const routes = {
   admin: "/admin-dashboard",
   student: "/siswa-dashboard",
   teacher: "/guru-dashboard",
-  parent: "/wali-dashboard",
+  parent: "/orangtua-dashboard",
   tahfiz: "/tahfiz-dashboard",
   cms: "/cms-dashboard",
 };

@@ -136,7 +136,7 @@ const FamilyData = ({ familyData, onRefetch, userid }) => {
         onClick={() => showModal()}
         style={{ marginBottom: 16 }}
       >
-        Tambah Anggota Keluarga
+        Tambah
       </Button>
       <Table
         columns={columns}
